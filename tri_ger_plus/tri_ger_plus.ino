@@ -1,16 +1,21 @@
-
-
+int[] outputs = {2,3,4,5,6,7,8,9,13};
 
 void setup(){
-  pinMode(13, OUTPUT);
+  for (int i=0; i<outputs.length; i++) {
+    pinMode(outputs[i], OUTPUT);
+  }
   Serial.begin(9600);
 }
 
 void loop(){
-  digitalWrite(13, LOW);
-  delay(2000);
-  digitalWrite(13, HIGH);
-  Serial.println( analogRead(1) );
+  for (int i=0; i<outputs.length; i++) {
+    digitalWrite(outputs[i], LOW);
+  }
+  delay(1000);
+  for (int i=0; i<outputs.length; i++) {
+    digitalWrite(outputs[i], HIGH);
+  }
+  delay(1000);
 }
 
 
