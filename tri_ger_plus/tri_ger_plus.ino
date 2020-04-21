@@ -1,14 +1,14 @@
 /**
 ATMEGA328 AU pin configuration & assignment
-* 1  pd3 - top button
-* 2  pd4 - left button
+* 1  pd3 - top cv out
+* 2  pd4 - left cv out
 * 3  GND
 * 4  VCC
 * 5  GND
 * 6  VCC
 * 7  pb6 - crystal 1
 * 8  pb7 - crystal 2
-* 9  pd5
+* 9  pd5 - right cv out
 * 10 pd6
 * 11 pd7
 * 12 pb0
@@ -29,21 +29,22 @@ ATMEGA328 AU pin configuration & assignment
 * 27 pc4 adc4 - ?
 * 28 pc5 adc5 - ?
 * 29 pc6 RESET
-* 30 pd0
-* 31 pd1
+* 30 pd0 - top button
+* 31 pd1 - left button
 * 32 pd2 - right button
 */
 
 
 #define clockOut_pin 7
 
-#define rightButton_pin 2
-#define rightButtonAGAIN_pin 5
-#define topButton_pin   3
-#define topButtonAGAIN_pin 0
-#define leftButton_pin  4
+#define buttonTop_pin   0
+#define buttonLeft_pin  1
+#define buttonRight_pin 2
+#define ledTop   3
+#define ledLeft  4
+#define ledRight 5
 
-#define altButton 6
+#define alt 6
 
 #define playPause_analog 1
 #define retrigger_analog 2
@@ -52,13 +53,14 @@ ATMEGA328 AU pin configuration & assignment
 
 
 int search_start = 0;
-int search_end = 0;
+int search_end = 7;
 
 int t = 1000;
 
 void setup(){
   for (int i=search_start; i<=search_end; i++) {
-    pinMode(i, INPUT);
+    pinMode(i, OUTPUT);
+    digitalWrite(i, LOW);
   }
   pinMode(clockOut_pin, OUTPUT);
 }
@@ -81,9 +83,11 @@ void analogBlink(){
 }
 
 void loop() {
-  bool on = false;
-  for (int i=search_start; i<=search_end; i++) {
-    on |= digitalRead(i);
-  }
-  digitalWrite(clockOut_pin, on);
+  digitalProbe();
+//  bool on = false;
+//  for (int i=search_start; i<=search_end; i++) {
+//    on |= digitalRead(i);
+//  }
+//  digitalWrite(clockOut_pin, on);
+
 }
