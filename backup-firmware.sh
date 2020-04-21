@@ -2,10 +2,10 @@
 
 avrdude \
   -p m328p \
-  -c avrisp \
-  -P /dev/ttyUSB0 \
-  -b 19200 \
+  -c usbtiny \
   -U flash:r:"new.tri-ger.backup.hex":i \
   -F
   -v -v
-
+#  -P /dev/ttyUSB0 \
+#  -b 19200 \
+ 
