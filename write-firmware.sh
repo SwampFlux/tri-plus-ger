@@ -1,14 +1,24 @@
 #!/bin/bash
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
-#cp $arg1 ./
+# build code
+arduino \
+  --verify
+  --board arduino:avr:nano:cpu=atmega328
+  --preserve-temp-files
+  --verbose-build
+  --pref build.path "$parent_path/build/"
 
-echo "writing file" $1
+# make sure the build was successful...
+if [ $? -eq 0 ]; then
+  echo 🎛OK!!
 
-avrdude \
-  -p m328p \
-  -c usbtiny \
-  -U flash:w:$1:i \
-  -F
-#  -P /dev/ttyUSB0 \
-#  -b 19200 \
- 
+  # force the hex file
+  avrdude \
+    -p m328p \
+    -c usbtiny \
+    -U flash:w:"$parent_path/build/tri_ger_plus.cpp.hex":i \
+    -F
+else
+  echo 💩FAIL
+fi
