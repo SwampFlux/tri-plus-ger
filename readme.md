@@ -3,8 +3,8 @@ An alternative firmware for the Qu-Bit Tri-ger
 
 This is a work in progress. The current state of things is that 25 of the 32 pins on the tri-ger have been identified with just a few weird things going on.
 
-![Arduino Pins](https://img.shields.io/badge/unidentified%20pins-25%20of%2032-yellow?logo=arduino)
-![Daisy Chain Pins](https://img.shields.io/badge/unidentified%20pins-0%20of%2020-red)
+![Arduino Pins](https://img.shields.io/badge/Arduino%20pins-25%20of%2032-yellow?logo=arduino)
+![Daisy Chain Pins](https://img.shields.io/badge/Daisy%20Chain%20pins-0%20of%2020-red)
 
 ## Goals
 Qu-Bit set out to create a trigger module that embraces playing beats live and recording beats with slop. What they actually created is a trigger module with bad resolution. I loved the idea of the Tri-ger but once it was under my finger tips I absolutely hated it. Tri+ger attempts to rewrite the firmware to give the user the experience that was expected before they started reading the manual.
