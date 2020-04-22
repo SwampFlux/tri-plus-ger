@@ -1,5 +1,7 @@
+![Tri+ger photograph](https://repository-images.githubusercontent.com/256033709/fc436680-84a4-11ea-8528-825dbfbbbdbb)
+
 # Tri+ger
-An alternative firmware for the Qu-Bit Tri-ger
+An alternative firmware for the Qu-Bit Tri-ger eurorack module.
 
 This is a work in progress. The current state of things is that 25 of the 32 pins on the tri-ger have been identified with just a few weird things going on.
 
@@ -7,7 +9,7 @@ This is a work in progress. The current state of things is that 25 of the 32 pin
 ![Daisy Chain Pins](https://img.shields.io/badge/Daisy%20Chain%20pins-0%20of%2020-red)
 
 ## Goals
-Qu-Bit set out to create a trigger module that embraces playing beats live and recording beats with slop. What they actually created is a trigger module with bad resolution. I loved the idea of the Tri-ger but once it was under my finger tips I absolutely hated it. Tri+ger attempts to rewrite the firmware to give the user the experience that was expected before they started reading the manual.
+Qu-Bit set out to create a trigger module that embraces playing beats live and recording beats with slop. What they actually created is a trigger module with bad resolution. I loved the idea of the Tri-ger but once it was under my finger tips I absolutely hated it. Tri+ger attempts to rewrite the firmware to give the user the experience that was expected before they started reading the manual and perhaps add novel features that I was working on as an answer to this otherwise great piece of hardware.
 
 ### Clock Input
 The most requested feature of tri-ger was clock input. I believe this will be achieved through the tempo input, but if that is not possible, the tri-ger hardware does have a slave mode, and a 2hp expansion module for clocking could be another way to do this. Playing with jumpers without the 2hp expansion may be a way to toggle functionality. At this point, I just don't know what the expansion pins are connected to.
