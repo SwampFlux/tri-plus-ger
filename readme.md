@@ -3,9 +3,9 @@
 # Tri+ger
 An alternative firmware for the Qu-Bit Tri-ger eurorack module.
 
-This is a work in progress. The current state of things is that 25 of the 32 pins on the tri-ger have been identified with just a few weird things going on.
+This is a work in progress. The current state of things is that 24 of the 32 pins on the tri-ger have been identified with just a few weird things going on.
 
-![Arduino Pins](https://img.shields.io/badge/Arduino%20pins-25%20of%2032-yellow?logo=arduino)
+![Arduino Pins](https://img.shields.io/badge/Arduino%20pins-24%20of%2032-yellow?logo=arduino)
 ![Daisy Chain Pins](https://img.shields.io/badge/Daisy%20Chain%20pins-0%20of%2020-red)
 
 ## Goals
