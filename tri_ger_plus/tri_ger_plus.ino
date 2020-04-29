@@ -69,9 +69,6 @@ c pins: analog 0-7
 // 10,9,8,7
 
 
-#include "display";
-
-
 void setup() {
   pinMode(led_clock, OUTPUT);
   pinMode(led_data, OUTPUT);
