@@ -46,8 +46,6 @@ c pins: analog 0-7
   32 pd2(2) - right button
 */
 
-#include <SPI.h>
-
 #define clockOut_pin 7
 
 #define buttonTop_pin   0
@@ -70,6 +68,10 @@ c pins: analog 0-7
 #define try_latch  8
 // 10,9,8,7
 
+
+#include "display";
+
+
 void setup() {
   pinMode(led_clock, OUTPUT);
   pinMode(led_data, OUTPUT);
@@ -84,10 +86,7 @@ byte white = B00000011;
 byte rgw = green + white;
 
 void loop() {
-  digitalWrite(try_latch, LOW);
-  shiftOut(led_data, led_clock, LSBFIRST, rgw);
-  shiftOut(led_data, led_clock, LSBFIRST, orng);
-  digitalWrite(try_latch, HIGH);
+
   delay(100);
   //if(counter++ > 100) counter = 0;
 }
