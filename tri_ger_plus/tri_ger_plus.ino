@@ -1,4 +1,16 @@
 /**
+* MicroWrave Tri+ger
+* Alternative firmware for the QU-Bit Tri-ger
+* Written by Wray Bowling
+* GPL3.0 (see LICENSE file for copyleft details)
+* Use this code at your own risk! By using this code,
+* you are responsible if you break your module
+* Detailed instructions are in the Wiki
+*/
+
+#define DEBUG true
+
+/*
 ATMEGA328 AU pin configuration & assignment
 
 pins on chip start at dot and go countner-clockwise
@@ -6,74 +18,66 @@ pins on chip start at dot and go countner-clockwise
 d pins: digital 0-7
 b pins: digital 8-13
 c pins: analog 0-7
-
-  pin# pinName(digital#) - what it does
-
-  1  pd3(3) - top cv out
-  2  pd4(4) - left cv out
-  3  GND
-  4  VCC
-  5  GND
-  6  VCC
-  7  pb6(14) - crystal 1
-  8  pb7(15) - crystal 2
-
-  9  pd5(5) - right cv out
-  10 pd6 - alt button
-? 11 pd7 - some sort of reset or enable pin, normally high, triggers low
-  12 pb0(8) - LED shift register latch
-? 13 pb1(9) - low for most of clock, then high maybe 20 clocks later, a single pulse low, then full low again 100 clocks later
-? 14 pb2(10) - a shape like this ---------|----|----|____________|--|__|--
-  15 pb3(11) MOSI - LED shift register data as [white & red/green] first byte and [orange] second byte
-  16 pb4(12) MISO - LED shift register clock
-
-? 17 pb5(13) SCK - yet another reset or something similar
-  18 AVCC
-  19 adc6(6) - roll rate
-  20 AREF -
-  21 GND -
-? 22 adc7(7) - ??? 
-? 23 pc0(14) adc0 - ??? HIGH (pullup?)
-  24 pc1(15) adc1 - play/pause
-
-  25 pc2(16) adc2 - retrigger
-  26 pc3(17) adc3 - roll
-? 27 pc4(18) adc4 - ?
-? 28 pc5(19) adc5 - ?
-  29 pc6(20) RESET
-  30 pd0(0) - top button
-  31 pd1(1) - left button
-  32 pd2(2) - right button
 */
 
-#define clockOut_pin 7
+#define top_out        3  //1 (pd3)
+#define left_out       4  //2 (pd4)
+//GND                     //3
+//VCC                     //4
+//GND                     //5
+//VCC                     //6
+//crystal 1            14 //7 (pb6)
+//crystal 2            15 //8 (pb7)
 
-#define buttonTop_pin   0
-#define buttonLeft_pin  1
-#define buttonRight_pin 2
-#define ledTop   3
-#define ledLeft  4
-#define ledRight 5
+#define right_out      5  //9 (pd5)
+#define alt            6  //10 (pd6)
+//#define unknown1     7  //11 (pd7) ??? some sort of reset or enable pin, normally high, triggers low
+#define led_latch      8  //12 (pb0)
+//#define unknown2     9  //13 (pb1) low for most of clock, then high maybe 20 clocks later, a single pulse low, then full low again 100 clocks later
+//#define unknown3     10 //14 (pb2) a shape like this ---------|----|----|____________|--|__|--
+#define led_data       11 //15 (pb3 MOSI) two bytes: grgrgrww, orange
+#define led_clock      12 //16 (pb4)
 
-#define alt 6
+//#define unknown4     13 //17 (pb5 SCK) yet another reset or something similar
+//AVCC                    //18
+#define roll_rate      6  //19 (pc6 adc6) - roll rate
+//AREF                    //20
+//GND                     //21
+//#define unknown5     7  //22 (pc7 adc7) - ??? 
+//#define unknown6     14 //23 (pc0 adc0) - ??? a pullup because it's HIGH?
+#define play_pause     15 //24 (pc1 adc1) - play/pause
 
-//analog 0 not used?
-#define playPause_analog 1
-#define retrigger_analog 2
-#define roll_analog      3
-//analog 4 not used?
-
-#define led_clock  12
-#define led_data   11
-#define try_latch  8
-// 10,9,8,7
-
+#define retrigger      16 //25 (pc2)
+#define roll           17 //26 (pc3)
+//? 27 pc4(18) adc4 - ?
+//? 28 pc5(19) adc5 - ?
+//  29 pc6(20) RESET
+#define top_button     0  //30 (pd0)
+#define left_button    1  //31 (pd1)
+#define right_button   2  //32 (pd2) 
 
 void setup() {
-  pinMode(led_clock, OUTPUT);
+  pinMode(top_out, OUTPUT);
+  pinMode(left_out, OUTPUT);
+  pinMode(right_out, OUTPUT);
+
+  pinMode(play_pause, INPUT);
+  pinMode(retrigger, INPUT);
+  pinMode(roll, INPUT);
+
+//pinMode(rec, INPUT);
+  pinMode(alt, INPUT);
+
+//pinMode(clock_division, INPUT);
+//pinMode(tempo, INPUT);
+  pinMode(roll_rate, INPUT);
+  
+  pinMode(led_latch, OUTPUT);
   pinMode(led_data, OUTPUT);
-  pinMode(try_latch, OUTPUT);
-  digitalWrite(try_latch, HIGH);
+  pinMode(led_clock, OUTPUT);
+
+  //init
+  digitalWrite(led_latch, HIGH);
 }
 
 byte orng =  B00111110;
