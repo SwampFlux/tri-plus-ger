@@ -18,7 +18,9 @@ parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
     -p m328p \
     -c usbtiny \
     -U flash:w:"$1":i \
-    -F
+    -C ./.avrdude/atmega328-no-p.conf
+ # \
+#    -F
 #else
 #  echo FAIL
 #fi

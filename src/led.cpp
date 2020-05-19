@@ -7,8 +7,9 @@
 //
 // note that play/pause, retrigger, and roll lights only light up when you press that button
 
-void lights(byte orange = 0) {
+#include <Arduino.h>
 
+void lights(byte orange) {
   const byte red =    B01010100;
   const byte green =  B10101000;
   const byte white =  B00000011;
@@ -16,7 +17,7 @@ void lights(byte orange = 0) {
 //  const byte orange = B00111110;
   
   digitalWrite(led_latch, LOW);
-  shiftOut(led_data, led_clock, LSBFIRST, rgw);
+  shiftOut(led_data, led_clock, LSBFIRST, 0);
   shiftOut(led_data, led_clock, LSBFIRST, orange);
   digitalWrite(led_latch, HIGH);
 }

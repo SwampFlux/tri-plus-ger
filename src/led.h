@@ -5,4 +5,6 @@
 #define led_latch  8
 #endif
 
+#include <Arduino.h>
+
 void lights(byte orange);

@@ -10,10 +10,11 @@
 
 #define DEBUG true
 
+#include <Arduino.h>
+
 /*
 ATMEGA328 AU pin configuration & assignment
-
-pins on chip start at dot and go countner-clockwise
+pins on chip start at dot and go counter-clockwise
 
 d pins: digital 0-7
 b pins: digital 8-15
@@ -34,21 +35,21 @@ c pins: digital 16-23 analog 0-7
 #define clock_out      7  //11 (pd7)
 #define led_latch      8  //12 (pb0)
 #define unknown2       9  //13 (pb1) low for most of clock, then high maybe 20 clocks later, a single pulse low, then full low again 100 clocks later
-#define unknown3       10 //14 (pb2) a shape like this ---------|----|----|____________|--|__|--
+#define knob_select_1       10 //14 (pb2) a shape like this ---------|----|----|____________|--|__|--
 #define led_data       11 //15 (pb3 MOSI) two bytes: grgrgrww, orange
 #define led_clock      12 //16 (pb4)
 
 #define unknown4       13 //17 (pb5 SCK) yet another reset or something similar
 //AVCC                    //18
-#define roll_rate      A6 //19 (pc6(22) adc6) - roll rate
+#define knobs      A6 //19 (pc6(22) adc6) - ? roll rate
 //AREF                    //20
 //GND                     //21
 #define unknown5       A7 //22 (pc7(23) adc7) - ??? 
-#define retrigger      16 //23 (pc0(16) adc0) - ??? a pullup because it's HIGH?
+#define retrigger       A0 //23 (pc0(16) adc0) - ??? a pullup because it's HIGH?
 #define play_pause     17 //24 (pc1(17) adc1) - play/pause
 
 #define retrigger2     18 //25 (pc2(18) adc2) - ??? huh?
-#define roll           19 //26 (pc3(19) adc3)
+#define roll            A3 //26 (pc3(19) adc3)
 #define unknown6       20 //27 (pc4(20) adc4) - ?
 #define unknown7       21 //28 (pc5(21) adc5) - ?
 //RESET                   //29 pc6(20)
@@ -99,14 +100,20 @@ void setup() {
 
 
   //multiplexer
+  pinMode(knob_select_1, OUTPUT);
+  digitalWrite(knob_select_1, HIGH);
+  
   pinMode(unknown2, OUTPUT);
-  pinMode(unknown3, OUTPUT);
-//  pinMode(unknown5, OUTPUT);
-//  pinMode(unknown6, OUTPUT);
-//  pinMode(unknown7, OUTPUT);
-  digitalWrite(unknown2, HIGH);
-  digitalWrite(unknown3, HIGH);
-//  digitalWrite(unknown5, HIGH);
+  digitalWrite(unknown2, LOW);
+
+  pinMode(unknown4, OUTPUT);
+  pinMode(unknown5, OUTPUT);
+  pinMode(unknown6, OUTPUT);
+  pinMode(unknown7, OUTPUT);
+  digitalWrite(unknown4, LOW);
+  digitalWrite(unknown5, LOW);
+  digitalWrite(unknown6, LOW);
+  digitalWrite(unknown7, LOW);
 
  //unknowns 2,3,4
   
@@ -114,18 +121,28 @@ void setup() {
   byte roll_rate      = B010;
   byte something_else = B100;
 
-  
+  // byte setting = B010;
 }
 
 
 void loop() {
 
-  byte d = analogRead(A5);
+  // bitRead(setting,0);
+
+  // byte d = analogRead(retrigger);
+  boolean _retrigger = digitalRead(retrigger);
+  digitalWrite(left_out, _retrigger);
+
+  boolean _play_pause = digitalRead(play_pause);
+  digitalWrite(top_out, _play_pause);
+
+  boolean _roll = digitalRead(alt);
+  digitalWrite(right_out, _roll);
   
 //  byte d = analogRead(roll_rate);
-  digitalWrite(led_latch, LOW);
-  lights(d);
-  digitalWrite(led_latch, HIGH);
+  // digitalWrite(led_latch, LOW);
+  // lights(d);
+  // digitalWrite(led_latch, HIGH);
 }
 
 
