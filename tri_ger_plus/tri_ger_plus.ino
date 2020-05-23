@@ -43,14 +43,14 @@ c pins: digital 16-23 analog 0-7
 #define knob_read      A6 //19 (pc6(22) adc6) - read from lots of knobs
 //AREF                    //20
 //GND                     //21
-#define unknown5       A7 //22 (pc7(23) adc7) - ??? 
-#define retrigger      16 //23 (pc0(16) adc0) - ??? a pullup because it's HIGH?
-#define play_pause     17 //24 (pc1(17) adc1) - play/pause
+#define unknown7       23 //22 (pc7(23) adc7) - ??? 
+#define retrigger      A0 //23 (pc0(16) adc0)
+#define play_pause     A1 //24 (pc1(17) adc1)
 
-#define retrigger2     18 //25 (pc2(18) adc2) - ??? huh?
+#define unknown2       A2 //25 (pc2(18) adc2) - ??? reads high. a reference?
 #define roll           19 //26 (pc3(19) adc3)
-#define unknown6       20 //27 (pc4(20) adc4) - ?
-#define unknown7       21 //28 (pc5(21) adc5) - ?
+#define unknown4       A4 //27 (pc4(20) adc4) - ??? read roughly half voltage one time. otherwise matches unknown2 output
+#define unknown5       21 //28 (pc5(21) adc5) - ??? always low. nothing?
 //RESET                   //29 pc6(20)
 #define top_button     0  //30 (pd0)
 #define left_button    1  //31 (pd1)
@@ -81,9 +81,12 @@ void setup() {
   pinMode(left_button, INPUT);
   pinMode(right_button, INPUT);
 
-  pinMode(play_pause, INPUT);
-  pinMode(retrigger, INPUT);
-  pinMode(roll, INPUT);
+//  pinMode(play_pause, INPUT);
+//  pinMode(retrigger, INPUT);
+//  pinMode(roll, INPUT);
+
+  pinMode(unknown2, INPUT);
+
 
 //pinMode(rec, INPUT);
   pinMode(alt, INPUT);
@@ -106,26 +109,40 @@ void setup() {
   pinMode(multiplex1, OUTPUT); //no3 yes?
   pinMode(multiplex2, OUTPUT); // YES
   pinMode(multiplex3, OUTPUT); // YES
-//  pinMode(unknown5, OUTPUT); //no3 no4
-//  pinMode(unknown6, OUTPUT); //no3
-//  pinMode(unknown7, OUTPUT); //no3
 
-  digitalWrite(multiplex1, LOW);
-  digitalWrite(multiplex2, LOW);
+  digitalWrite(multiplex1, HIGH);
+  digitalWrite(multiplex2, HIGH);
   digitalWrite(multiplex3, LOW);
-  
 
-  // using pins          234
+  byte clock_division     = B000; // 0
+  byte nothing2           = B001; // 1
+  byte tempo              = B010; // 2
+  byte record_button      = B011; // 3
+  byte clock_division_cv  = B100; // 4
+  byte host_or_slave      = B101; // 5
+  byte roll_rate          = B110; // 6
+  byte master_record      = B111; // 7 record button from master
 
-  byte clock_division = B000; // 0
-  byte nothing2       = B001; // 1
-  byte tempo          = B010; // 2
-  byte record_button  = B011; // 3
-//byte nothing        = B100; // 4
-//byte mystery_data   = B101; // 5
-  byte roll_rate      = B110; // 6
-  byte master_record  = B111; // 7 record button from master
+  // the rabbit hole goes deeper! pin configurations are in the multiplex
+  // using some sort of resistor ladder
+
+  // 0 normal
+  // >3/8ths slave mode
+  // 1 host mode
+
+
+  //multiplexer 2??
+//  pinMode(unknown4, INPUT); // matches with #2's high and low
+
+
+//  pinMode(unknown2, OUTPUT);
+//  digitalWrite(unknown2, HIGH);
   
+  pinMode(unknown5, OUTPUT);
+  digitalWrite(unknown5, LOW);
+
+  pinMode(unknown7, OUTPUT);
+  digitalWrite(unknown7, LOW);
 }
 
 
@@ -133,9 +150,16 @@ void setup() {
 //byte counter = 1;
 
 void loop() {
-  byte _knob_read = byte( pow(2, (analogRead(knob_read) + 1) / 128) );
+
+  digitalWrite(unknown5, HIGH);
+  delay(10);
+  digitalWrite(unknown5, LOW);
+  delay(20);
+
+  byte test_signal = byte( 1 << (analogRead(play_pause) / 128) );
+//  byte test_signal = byte( 1 << digitalRead(unknown2) );
   
-  lights(0, _knob_read);
+  lights(0, test_signal);
 //  counter << 1;
 //  if(counter >= 1000) counter = 1;
   
