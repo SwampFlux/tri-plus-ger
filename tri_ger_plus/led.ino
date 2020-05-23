@@ -7,12 +7,12 @@
 //
 // note that play/pause, retrigger, and roll lights only light up when you press that button
 
-void lights(byte orange = 0) {
+void lights(byte rgw, byte orange) {
 
-  const byte red =    B01010100;
-  const byte green =  B10101000;
-  const byte white =  B00000011;
-  const byte rgw = green + white;
+//  const byte red =    B01010100;
+//  const byte green =  B10101000;
+//  const byte white =  B00000011;
+//  const byte rgw = green + white;
 //  const byte orange = B00111110;
   
   digitalWrite(led_latch, LOW);

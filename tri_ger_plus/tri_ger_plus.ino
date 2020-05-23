@@ -33,14 +33,14 @@ c pins: digital 16-23 analog 0-7
 #define alt            6  //10 (pd6)
 #define clock_out      7  //11 (pd7)
 #define led_latch      8  //12 (pb0)
-#define unknown2       9  //13 (pb1) low for most of clock, then high maybe 20 clocks later, a single pulse low, then full low again 100 clocks later
-#define unknown3       10 //14 (pb2) a shape like this ---------|----|----|____________|--|__|--
+#define multiplex1     9  //13 (pb1) low for most of clock, then high maybe 20 clocks later, a single pulse low, then full low again 100 clocks later
+#define multiplex2     10 //14 (pb2) a shape like this ---------|----|----|____________|--|__|--
 #define led_data       11 //15 (pb3 MOSI) two bytes: grgrgrww, orange
 #define led_clock      12 //16 (pb4)
 
-#define unknown4       13 //17 (pb5 SCK) yet another reset or something similar
+#define multiplex3     13 //17 (pb5 SCK) yet another reset or something similar
 //AVCC                    //18
-#define roll_rate      A6 //19 (pc6(22) adc6) - roll rate
+#define knob_read      A6 //19 (pc6(22) adc6) - read from lots of knobs
 //AREF                    //20
 //GND                     //21
 #define unknown5       A7 //22 (pc7(23) adc7) - ??? 
@@ -60,7 +60,7 @@ c pins: digital 16-23 analog 0-7
 #define tmpl2  {2,0,0,0, 0,0,0,0, 0,0,0,0}
 #define tmpl0  {0,0,0,0, 0,0,0,0, 0,0,0,0}
 
-#include "led.h"
+//#include "led.h"
 
 int seq_weights[16][12] = {
    tmpl4, tmpl0, tmpl0, tmpl0,
@@ -72,10 +72,14 @@ int seq_weights[16][12] = {
 void setup() {
 //  pinMode(clock_in, INPUT_PULLUP);
   pinMode(clock_out, OUTPUT);
-  
+
   pinMode(top_out, OUTPUT);
   pinMode(left_out, OUTPUT);
   pinMode(right_out, OUTPUT);
+  
+  pinMode(top_button, INPUT);
+  pinMode(left_button, INPUT);
+  pinMode(right_button, INPUT);
 
   pinMode(play_pause, INPUT);
   pinMode(retrigger, INPUT);
@@ -99,33 +103,43 @@ void setup() {
 
 
   //multiplexer
-  pinMode(unknown2, OUTPUT);
-  pinMode(unknown3, OUTPUT);
-//  pinMode(unknown5, OUTPUT);
-//  pinMode(unknown6, OUTPUT);
-//  pinMode(unknown7, OUTPUT);
-  digitalWrite(unknown2, HIGH);
-  digitalWrite(unknown3, HIGH);
-//  digitalWrite(unknown5, HIGH);
+  pinMode(multiplex1, OUTPUT); //no3 yes?
+  pinMode(multiplex2, OUTPUT); // YES
+  pinMode(multiplex3, OUTPUT); // YES
+//  pinMode(unknown5, OUTPUT); //no3 no4
+//  pinMode(unknown6, OUTPUT); //no3
+//  pinMode(unknown7, OUTPUT); //no3
 
- //unknowns 2,3,4
+  digitalWrite(multiplex1, LOW);
+  digitalWrite(multiplex2, LOW);
+  digitalWrite(multiplex3, LOW);
   
-  byte clock_division = B000;
-  byte roll_rate      = B010;
-  byte something_else = B100;
 
+  // using pins          234
+
+  byte clock_division = B000; // 0
+  byte nothing2       = B001; // 1
+  byte tempo          = B010; // 2
+  byte record_button  = B011; // 3
+//byte nothing        = B100; // 4
+//byte mystery_data   = B101; // 5
+  byte roll_rate      = B110; // 6
+  byte master_record  = B111; // 7 record button from master
   
 }
 
 
-void loop() {
 
-  byte d = analogRead(A5);
+//byte counter = 1;
+
+void loop() {
+  byte _knob_read = byte( pow(2, (analogRead(knob_read) + 1) / 128) );
   
-//  byte d = analogRead(roll_rate);
-  digitalWrite(led_latch, LOW);
-  lights(d);
-  digitalWrite(led_latch, HIGH);
+  lights(0, _knob_read);
+//  counter << 1;
+//  if(counter >= 1000) counter = 1;
+  
+//  delay(100);
 }
 
 
