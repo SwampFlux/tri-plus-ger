@@ -3,10 +3,14 @@
 # Tri+ger
 An alternative firmware for the Qu-Bit Tri-ger eurorack module.
 
-This is a work in progress. The current state of things is that 24 of the 32 pins on the tri-ger have been identified with just a few weird things going on.
+This is a work in progress. See the issues section for details on what's still in the works.
 
-![Arduino Pins](https://img.shields.io/badge/Arduino%20pins-24%20of%2032-yellow?logo=arduino)
-![Daisy Chain Pins](https://img.shields.io/badge/Daisy%20Chain%20pins-0%20of%2020-red)
+![Arduino Pins](https://img.shields.io/badge/Arduino%20pins-29%20of%2032-yellow?logo=arduino)
+![CV Inputs](https://img.shields.io/badge/CV%20Inputs-5%20of%206-yellow)
+![CV Outputs](https://img.shields.io/badge/CV%20Outputs-3%20of%203-green)
+![LEDs](https://img.shields.io/badge/LEDs-16%20of%2016-green)
+![Knobs](https://img.shields.io/badge/Knobs-3%20of%203-green)
+![Daisy Chain Pins](https://img.shields.io/badge/Daisy%20Chain%20pins-5%20of%205-green)
 
 ## Goals
 Qu-Bit set out to create a trigger module that embraces playing beats live and recording beats with slop. What they actually created is a trigger module with bad resolution. I loved the idea of the Tri-ger but once it was under my finger tips I absolutely hated it. Tri+ger attempts to rewrite the firmware to give the user the experience that was expected before they started reading the manual and perhaps add novel features that I was working on as an answer to this otherwise great piece of hardware.
