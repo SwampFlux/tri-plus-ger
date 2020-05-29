@@ -61,7 +61,7 @@ c pins: digital 16-23 analog 0-7
  */
 #define clock_div_knob       B000 // 0
 #define clock_div_cv         B001 // 1
-#define tempo_knob           B010 // 2 - from master via ribbon cable if jumper configured
+#define tempo                B010 // 2 - from master via ribbon cable if jumper configured
 #define roll_rate_knob       B011 // 3
 #define roll_rate_cv         B100 // 4
 #define host_vs_slave        B101 // 5 - high vs half voltage, respectively
@@ -73,7 +73,6 @@ c pins: digital 16-23 analog 0-7
  * these things have not been found yet
  */
 
-#define tempo_cv             UNKNOWN
 
 
 
@@ -97,32 +96,11 @@ void setup() {
   pinMode(led_latch, OUTPUT);
   pinMode(led_data, OUTPUT);
   pinMode(led_clock, OUTPUT);
-
-  pinMode(findme_4, INPUT);
 }
 
-
-bool isHigh = false;
-bool yepnope = false;
-
 void loop() {
-//  yepnope = !yepnope;
-//  digitalWrite(test_switch, yepnope);
-//  byte test_signal = byte( 1 << (analogRead(unknown4) / 128) );
-//  lights(0, test_signal);
-//  delay(500);
-
-  bool gate = digitalRead(findme_4);
-  if(gate){
-    if(!isHigh){
-      yepnope = !yepnope;
-    }
-    isHigh = true;
-  }else{
-    isHigh = false;
-  }
-  
-  lights(byte(1 << (4 * yepnope)), byte(1 << gate));
+  int _tempo = getMux(tempo);
+  lights(0, 1 << (analogRead(_tempo) / 128));
 }
 
 int getMux(char channels) {
@@ -131,80 +109,3 @@ int getMux(char channels) {
   digitalWrite(mux_select_2, bitRead(channels, 2));
   return analogRead(mux_voltage);
 }
-
-
-
-/*
-int t = 100;
-
-const int checkz = 11;
-const int checklist[checkz] = {8,9,10,11,12,13};
-
-void setup() {
-  pinMode(14, PULLUP);
-  pinMode(18, INPUT);
-  pinMode(19, INPUT);
-  for (int i=0; i<checkz; i++) {
-    pinMode(checklist[i], OUTPUT);
-    digitalWrite(i, LOW);
-  }
-  pinMode(clockOut_pin, OUTPUT);
-  SPI.begin();
-}
-
-void digitalProbe(int search_start=0, int search_end=7){
-  for (int i=search_start; i<=search_end; i++) {
-    digitalWrite(i, HIGH);
-    delay(t/2);
-    digitalWrite(i, LOW);
-    delay(t/2);
-  }
-}
-
-void analogBlink(){
-  int a = analogRead(7);
-  digitalWrite(clockOut_pin, LOW);
-  delay( a + 20 );
-  digitalWrite(clockOut_pin, HIGH);
-  delay( a + 20 );
-}
-
-int tryLatch = 0;
-int counter = 0;
-
-void loop() {
-//  digitalWrite(checklist[tryLatch], HIGH);
-//  SPI.transfer(counter);
-//  digitalWrite(checklist[tryLatch], LOW);
-//  delay(t);
-//  if(counter >= 120){
-//    counter = 0;
-//    tryLatch++;
-//    if(tryLatch >=7) tryLatch = 0;
-//  }
-  
-    
-//    for(int i=0; i<checkz; i++) {
-//      digitalWrite(checklist[i], LOW);
-//      SPI.transfer(B00100101);
-//      delay(t);
-//      digitalWrite(checklist[i], HIGH);
-//      SPI.transfer(B00100101);
-//      delay(t);
-//      digitalWrite(checklist[i], LOW);
-//      delay(t);
-//    }
-    
-    
-//  digitalProbe();
-  bool on = false;
-//  for (int i=14; i<=19; i++) {
-   on |= analogRead(0) > 120;
-    on |= digitalRead(14);
-      on |= digitalRead(18);
-        on |= digitalRead(19);
-    
-//  }
-  digitalWrite(clockOut_pin, on);
-
-}*/
