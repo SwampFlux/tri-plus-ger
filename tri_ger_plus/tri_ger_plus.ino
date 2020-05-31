@@ -64,7 +64,7 @@ c pins: digital 16-23 analog 0-7
 #define tempo                B010 // 2 - from master via ribbon cable if jumper configured
 #define roll_rate_knob       B011 // 3
 #define roll_rate_cv         B100 // 4
-#define host_vs_slave        B101 // 5 - high vs half voltage, respectively
+#define host_vs_slave        B101 // 5 - host=944, normal=0, slave=3
 #define record_button        B110 // 6
 #define record_button_master B111 // 7
 
@@ -73,10 +73,14 @@ c pins: digital 16-23 analog 0-7
  * these things have not been found yet
  */
 
+#include "peaks_pattern_predictor.h"
 
+PatternPredictor<32, 8> bpm;
 
 
 void setup() {
+  bpm.Init();
+  
   pinMode(clock_out, OUTPUT);
 
   pinMode(top_button, INPUT);
@@ -96,11 +100,19 @@ void setup() {
   pinMode(led_latch, OUTPUT);
   pinMode(led_data, OUTPUT);
   pinMode(led_clock, OUTPUT);
+
+  const bool slave_mode = getMux(host_vs_slave);
 }
 
+
 void loop() {
-  int _tempo = getMux(tempo);
-  lights(0, 1 << (analogRead(_tempo) / 128));
+  doTimeStuff();
+
+  
+//  
+//  byte rgw_lights = 0;
+//
+//  lights(rgw_lights, 0);
 }
 
 int getMux(char channels) {
@@ -108,4 +120,11 @@ int getMux(char channels) {
   digitalWrite(mux_select_1, bitRead(channels, 1));
   digitalWrite(mux_select_2, bitRead(channels, 2));
   return analogRead(mux_voltage);
+}
+
+bool getHostMode() {
+  int mode = getMux(host_vs_slave);
+  if(mode > 900) return 1; //host
+  if(mode > 0)   return 0; //slave
+                 return 1; //normal
 }
