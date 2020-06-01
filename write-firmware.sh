@@ -15,10 +15,10 @@ parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
   # force the hex file
   avrdude \
-    -p m328p \
+    -p m328 \
     -c usbtiny \
     -U flash:w:"$1":i \
-    -F
+    
 #else
 #  echo FAIL
 #fi
