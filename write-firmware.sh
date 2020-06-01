@@ -13,11 +13,11 @@ parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 #if [ $? -eq 0 ]; then
 #  echo OK!!
 
-  # force the hex file
+  # write the hex file
   avrdude \
     -p m328 \
     -c usbtiny \
-    -U flash:w:"$1":i \
+    -U flash:w:"$1":i
     
 #else
 #  echo FAIL
