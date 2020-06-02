@@ -10,11 +10,10 @@
 
 #define DEBUG true
 
-#include <Arduino.h>
-
 /*
 ATMEGA328 AU pin configuration & assignment
-pins on chip start at dot and go counter-clockwise
+
+pins on chip start at dot and go countner-clockwise
 
 d pins: digital 0-7
 b pins: digital 8-15
@@ -34,189 +33,98 @@ c pins: digital 16-23 analog 0-7
 #define alt            6  //10 (pd6)
 #define clock_out      7  //11 (pd7)
 #define led_latch      8  //12 (pb0)
-#define unknown2       9  //13 (pb1) low for most of clock, then high maybe 20 clocks later, a single pulse low, then full low again 100 clocks later
-#define knob_select_1       10 //14 (pb2) a shape like this ---------|----|----|____________|--|__|--
-#define led_data       11 //15 (pb3 MOSI) two bytes: grgrgrww, orange
+#define mux_select_0   9  //13 (pb1)
+#define mux_select_1   10 //14 (pb2)
+#define led_data       11 //15 (pb3 MOSI) - 2 bytes: grgrgrww, orange
 #define led_clock      12 //16 (pb4)
 
-#define unknown4       13 //17 (pb5 SCK) yet another reset or something similar
+#define mux_select_2   13 //17 (pb5 SCK)
 //AVCC                    //18
-#define knobs      A6 //19 (pc6(22) adc6) - ? roll rate
+#define mux_voltage    A6 //19 (pc6(22) adc6) - read from lots of knobs
 //AREF                    //20
 //GND                     //21
-#define unknown5       A7 //22 (pc7(23) adc7) - ??? 
-#define retrigger       A0 //23 (pc0(16) adc0) - ??? a pullup because it's HIGH?
-#define play_pause     17 //24 (pc1(17) adc1) - play/pause
+#define findme_1       23 //22 (pc7(23) adc7) - likely unused
+#define retrigger      A0 //23 (pc0(16) adc0)
+#define play_pause     A1 //24 (pc1(17) adc1)
 
-#define retrigger2     18 //25 (pc2(18) adc2) - ??? huh?
-#define roll            A3 //26 (pc3(19) adc3)
-#define unknown6       20 //27 (pc4(20) adc4) - ?
-#define unknown7       21 //28 (pc5(21) adc5) - ?
+#define master_trig    18 //25 (pc2(18) adc2) - retrigger(1) play(2) from daisy chain
+#define roll           19 //26 (pc3(19) adc3)
+#define findme_3       20 //27 (pc4(20) adc4) - ??? read roughly half voltage one time. otherwise matches unknown2 output
+#define findme_4       21 //28 (pc5(21) adc5) - ??? always low. nothing?
 //RESET                   //29 pc6(20)
 #define top_button     0  //30 (pd0)
 #define left_button    1  //31 (pd1)
-#define right_button   2  //32 (pd2) 
+#define right_button   2  //32 (pd2)
 
-#define tmpl4  {4,0,0,0, 0,0,0,0, 0,0,0,0}
-#define tmpl2  {2,0,0,0, 0,0,0,0, 0,0,0,0}
-#define tmpl0  {0,0,0,0, 0,0,0,0, 0,0,0,0}
+/* multiplexed analog signals
+ * all are read on A6 via the getMux() function
+ */
+#define clock_div_knob       B000 // 0
+#define clock_div_cv         B001 // 1
+#define tempo                B010 // 2 - from master via ribbon cable if jumper configured
+#define roll_rate_knob       B011 // 3
+#define roll_rate_cv         B100 // 4
+#define host_vs_slave        B101 // 5 - host=944, normal=0, slave=3
+#define record_button        B110 // 6
+#define record_button_master B111 // 7
 
-#include "led.h"
+/*
+ * TODO section
+ * these things have not been found yet
+ */
 
-int seq_weights[16][12] = {
-   tmpl4, tmpl0, tmpl0, tmpl0,
-   tmpl0, tmpl0, tmpl0, tmpl0,
-   tmpl4, tmpl0, tmpl0, tmpl0,
-   tmpl2, tmpl0, tmpl0, tmpl0
-};
+#include "peaks_pattern_predictor.h"
+
+PatternPredictor<32, 8> bpm;
+
 
 void setup() {
-//  pinMode(clock_in, INPUT_PULLUP);
-  pinMode(clock_out, OUTPUT);
+  bpm.Init();
   
+  pinMode(clock_out, OUTPUT);
+
+  pinMode(top_button, INPUT);
+  pinMode(left_button, INPUT);
+  pinMode(right_button, INPUT);
+
   pinMode(top_out, OUTPUT);
   pinMode(left_out, OUTPUT);
   pinMode(right_out, OUTPUT);
+  
+  pinMode(mux_select_0, OUTPUT);
+  pinMode(mux_select_1, OUTPUT);
+  pinMode(mux_select_2, OUTPUT);
 
-  pinMode(play_pause, INPUT);
-  pinMode(retrigger, INPUT);
-  pinMode(roll, INPUT);
-
-//pinMode(rec, INPUT);
   pinMode(alt, INPUT);
-
-//pinMode(clock_division, INPUT);
-//pinMode(tempo, INPUT);
   
   pinMode(led_latch, OUTPUT);
   pinMode(led_data, OUTPUT);
   pinMode(led_clock, OUTPUT);
 
-  //unidentified
-  pinMode(20, INPUT);
-
-  //init
-  digitalWrite(led_latch, HIGH);
-
-
-  //multiplexer
-  pinMode(knob_select_1, OUTPUT);
-  digitalWrite(knob_select_1, HIGH);
-  
-  pinMode(unknown2, OUTPUT);
-  digitalWrite(unknown2, LOW);
-
-  pinMode(unknown4, OUTPUT);
-  pinMode(unknown5, OUTPUT);
-  pinMode(unknown6, OUTPUT);
-  pinMode(unknown7, OUTPUT);
-  digitalWrite(unknown4, LOW);
-  digitalWrite(unknown5, LOW);
-  digitalWrite(unknown6, LOW);
-  digitalWrite(unknown7, LOW);
-
- //unknowns 2,3,4
-  
-  byte clock_division = B000;
-  byte roll_rate      = B010;
-  byte something_else = B100;
-
-  // byte setting = B010;
+  const bool slave_mode = getMux(host_vs_slave);
 }
 
 
 void loop() {
+  doTimeStuff();
 
-  // bitRead(setting,0);
-
-  // byte d = analogRead(retrigger);
-  boolean _retrigger = digitalRead(retrigger);
-  digitalWrite(left_out, _retrigger);
-
-  boolean _play_pause = digitalRead(play_pause);
-  digitalWrite(top_out, _play_pause);
-
-  boolean _roll = digitalRead(alt);
-  digitalWrite(right_out, _roll);
   
-//  byte d = analogRead(roll_rate);
-  // digitalWrite(led_latch, LOW);
-  // lights(d);
-  // digitalWrite(led_latch, HIGH);
+//  
+//  byte rgw_lights = 0;
+//
+//  lights(rgw_lights, 0);
 }
 
-
-/*
-int t = 100;
-
-const int checkz = 11;
-const int checklist[checkz] = {8,9,10,11,12,13};
-
-void setup() {
-  pinMode(14, PULLUP);
-  pinMode(18, INPUT);
-  pinMode(19, INPUT);
-  for (int i=0; i<checkz; i++) {
-    pinMode(checklist[i], OUTPUT);
-    digitalWrite(i, LOW);
-  }
-  pinMode(clockOut_pin, OUTPUT);
-  SPI.begin();
+int getMux(char channels) {
+  digitalWrite(mux_select_0, bitRead(channels, 0));
+  digitalWrite(mux_select_1, bitRead(channels, 1));
+  digitalWrite(mux_select_2, bitRead(channels, 2));
+  return analogRead(mux_voltage);
 }
 
-void digitalProbe(int search_start=0, int search_end=7){
-  for (int i=search_start; i<=search_end; i++) {
-    digitalWrite(i, HIGH);
-    delay(t/2);
-    digitalWrite(i, LOW);
-    delay(t/2);
-  }
+bool getHostMode() {
+  int mode = getMux(host_vs_slave);
+  if(mode > 900) return 1; //host
+  if(mode > 0)   return 0; //slave
+                 return 1; //normal
 }
-
-void analogBlink(){
-  int a = analogRead(7);
-  digitalWrite(clockOut_pin, LOW);
-  delay( a + 20 );
-  digitalWrite(clockOut_pin, HIGH);
-  delay( a + 20 );
-}
-
-int tryLatch = 0;
-int counter = 0;
-
-void loop() {
-//  digitalWrite(checklist[tryLatch], HIGH);
-//  SPI.transfer(counter);
-//  digitalWrite(checklist[tryLatch], LOW);
-//  delay(t);
-//  if(counter >= 120){
-//    counter = 0;
-//    tryLatch++;
-//    if(tryLatch >=7) tryLatch = 0;
-//  }
-  
-    
-//    for(int i=0; i<checkz; i++) {
-//      digitalWrite(checklist[i], LOW);
-//      SPI.transfer(B00100101);
-//      delay(t);
-//      digitalWrite(checklist[i], HIGH);
-//      SPI.transfer(B00100101);
-//      delay(t);
-//      digitalWrite(checklist[i], LOW);
-//      delay(t);
-//    }
-    
-    
-//  digitalProbe();
-  bool on = false;
-//  for (int i=14; i<=19; i++) {
-   on |= analogRead(0) > 120;
-    on |= digitalRead(14);
-      on |= digitalRead(18);
-        on |= digitalRead(19);
-    
-//  }
-  digitalWrite(clockOut_pin, on);
-
-}*/

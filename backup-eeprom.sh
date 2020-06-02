@@ -1,10 +1,9 @@
 #!/bin/bash
 
 avrdude \
-  -p m328p \
+  -p m328 \
   -c usbtiny \
   -U eeprom:r:"new.tri-ger.eeprom.backup.hex":i \
-  -F
   -v -v
 
 #  -P /dev/ttyUSB0 \

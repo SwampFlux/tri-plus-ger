@@ -1,10 +1,9 @@
 #!/bin/bash
 
 avrdude \
-  -p m328p \
+  -p m328 \
   -c usbtiny \
   -U flash:w:"factory-firmware.backup.hex":i \
-  -F
   -v -v
 
 #  -b 19200 \
