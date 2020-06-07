@@ -68,18 +68,12 @@ c pins: digital 16-23 analog 0-7
 #define record_button        B110 // 6
 #define record_button_master B111 // 7
 
-/*
- * TODO section
- * these things have not been found yet
- */
 
-#include "peaks_pattern_predictor.h"
 
-PatternPredictor<32, 8> bpm;
 
 
 void setup() {
-  bpm.Init();
+  
   
   pinMode(clock_out, OUTPUT);
 
