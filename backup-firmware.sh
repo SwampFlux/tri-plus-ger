@@ -3,8 +3,7 @@
 avrdude \
   -p m328 \
   -c usbtiny \
-  -U flash:r:"new.tri-ger.backup.hex":i \
-  -v -v
-#  -P /dev/ttyUSB0 \
+  -U flash:r:"please-save-me.hex":i \
+  -v
 #  -b 19200 \
  
