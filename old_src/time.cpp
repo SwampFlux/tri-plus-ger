@@ -20,9 +20,12 @@
  * when the new frame is lower than the previous, then we have a new pulse
  */
 
+#include <Arduino.h>
+
 #include "peaks_pattern_predictor.h"
 
-class Clock {
+class Clock
+{
   PatternPredictor<32, 8> predictor;
   byte sync_debounce = 0;
   uint32_t millis_prev_sync = 0;
@@ -30,111 +33,115 @@ class Clock {
   uint32_t sync_counter;
   uint32_t prev_modulo;
   uint32_t clock_skips;
-  uint8_t  clock_counter;
-//  uint32_t clock_slip;
-//  byte clock_debounce = 0;
-  
-//  uint32_t millis_next_clock_on;
-//  bool clock_is_on;
+  uint8_t clock_counter;
+  //  uint32_t clock_slip;
+  //  byte clock_debounce = 0;
+
+  //  uint32_t millis_next_clock_on;
+  //  bool clock_is_on;
   uint32_t millis_next_clock_off;
-  
-  constructor(){
+
+  constructor()
+  {
     predictor.Init();
   }
 
-  void clockIn(int sync_voltage){
+  void clockIn(int sync_voltage)
+  {
     this.sync_debounce = this.sync_debounce << 1 + sync_voltage > 900;
     this.syncCounter++;
-    if(sync_debounce == 1) {
+    if (sync_debounce == 1)
+    {
       const uint32_t NEW_PERIOD = millis() - this.millis_prev_sync;
       this.sync_period = predictor.Predict(NEW_PERIOD);
       this.syncCounter = 0;
     }
   }
 
-  bool clockOut(){
+  bool clockOut()
+  {
     const int MULTIPLIER_STEP = (getMux(clock_div_knob) * 10 + 512) / 1023 - 5;
     const int MULTIPLIER = abs(MULTIPLIER_STEP) == 5
-    ? 24
-    : 1 << abs(MULTIPLIER_STEP);
+                               ? 24
+                               : 1 << abs(MULTIPLIER_STEP);
 
-    
-
-
-    
-    if(MULTIPLIER_STEP <= 0) { // less knob = multiply period (slower)
+    if (MULTIPLIER_STEP <= 0)
+    { // less knob = multiply period (slower)
       //= this.sync_period * MULTIPLIER;
       // actually just skip
 
-      if(something) {
+      if (something)
+      {
         this.clock_skips++;
-        if(this.clock_skips >= MULTIPLIER) {
+        if (this.clock_skips >= MULTIPLIER)
+        {
           this.clock_skips = 0;
-          
         }
       }
-      
-
-       
-    } else { // divide period (faster)
-      const NEXT_MODULO = 
+    }
+    else
+    { // divide period (faster)
+      const NEXT_MODULO =
       //prev_modulo
 
-      
       //millis_next_clock_on = now + periodPrediction / multiplier;
     }
     millis_next_clock_off = millis_next_clock_on + 25;
-    
   }
 
-  void reTrigger() {
+  void reTrigger()
+  {
     this.skips = 0;
   }
 }
 
-
-void doTimeStuff() {
+void
+doTimeStuff()
+{
 
   // y = floor((x10+512)/1023-5)+5
 
-  
-
-//  int multiplier = getMux(clock_div_knob) * 24 / 512 - 24;
+  //  int multiplier = getMux(clock_div_knob) * 24 / 512 - 24;
   lights(0, multiplier);
-  
+
   const uint32_t now = millis();
-  
+
   bool clockIsHigh = getMux(clock_div_cv) > 512;
 
-
-  if(clockIsHigh) {
-    if(!prevClockWasHigh) { //new pulse
+  if (clockIsHigh)
+  {
+    if (!prevClockWasHigh)
+    { //new pulse
       uint32_t newPeriod = now - prevClockMillis;
       prevClockMillis = now;
-      
+
       periodPrediction = bpm.Predict(newPeriod);
-//      lights(0, byte(periodPrediction)); //debug
+      //      lights(0, byte(periodPrediction)); //debug
 
       prevClockOffAtMillis = nextClockOffAtMillis;
-      
-      if(multiplier_step <= 0) { // multiply period, go slower
+
+      if (multiplier_step <= 0)
+      { // multiply period, go slower
         nextClockOffAtMillis = now + periodPrediction * multiplier + 25;
-      } else { // divide period, go faster
+      }
+      else
+      { // divide period, go faster
         nextClockOffAtMillis = now + periodPrediction / multiplier + 25;
       }
-
     }
     prevClockWasHigh = true;
-  } else {
+  }
+  else
+  {
     prevClockWasHigh = false;
   }
 
-
-  
-
-  if(now < prevClockOffAtMillis){
+  if (now < prevClockOffAtMillis)
+  {
     digitalWrite(clock_out, HIGH);
-  }else{
+  }
+  else
+  {
     digitalWrite(clock_out, LOW);
   }
 }
