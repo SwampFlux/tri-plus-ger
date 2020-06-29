@@ -30,3 +30,8 @@ Instead of throwing out the slop completely, I'd like to meet QU-Bit somewhere i
 ### Extra Feature: Gate Weight
 
 I have been designing a trigger module of my own, Probagate, that allows each beat in the sequence to have a weight and a parameter for filtering out lightweight steps. I will attempt to include this feature by way of some special button combination and/or taking over one of the CV inputs.
+
+### See Also
+
+- [Tri+ger Muffwiggler Forum thread](https://www.muffwiggler.com/forum/viewtopic.php?f=16&t=231526&p=3258064#p3258064)
+- [Richland Synth Fest 2020 talk](https://www.twitch.tv/videos/664368287)
