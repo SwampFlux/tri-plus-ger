@@ -6,7 +6,7 @@ An alternative firmware for the Qu-Bit Tri-ger eurorack module.
 
 This is a work in progress. See the issues section for details on what's still in the works.
 
-[![Build Status](https://travis-ci.org/MicroWrave/tri-ger-plus.svg?branch=master)](https://travis-ci.org/MicroWrave/tri-ger-plus)
+![Build Status](https://github.com/MicroWrave/tri-plus-ger/workflows/Build/badge.svg)
 [![Open Issues](https://img.shields.io/github/issues/MicroWrave/tri-plus-ger)](https://github.com/MicroWrave/tri-plus-ger/issues)
 ![Arduino Pins](https://img.shields.io/badge/Arduino%20pins-32%20of%2032-green?logo=arduino)
 ![CV Inputs](https://img.shields.io/badge/CV%20Inputs-6%20of%206-green)
