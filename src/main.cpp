@@ -6,6 +6,7 @@
  * Use this code at your own risk! By using this code,
  * you are responsible if you break your module
  * Detailed instructions are in the Wiki
+ * https://github.com/MicroWrave/tri-plus-ger/wiki
  */
 
 #include <Arduino.h>
@@ -14,6 +15,7 @@
 #include "pins.h"
 #include "multiplexer.h"
 #include "led.h"
+#include "grid.h"
 
 void setup()
 {
