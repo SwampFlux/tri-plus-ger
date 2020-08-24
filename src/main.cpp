@@ -54,6 +54,8 @@ int step = 0;
 bool prev_leftPressed = false;
 bool this_leftPressed = false;
 
+short pwm = 0;
+
 void loop()
 {
   // local vars
@@ -74,7 +76,7 @@ void loop()
     // hold the button to clear subsequent steps
     // full roll rate acts as original gate
     if(this_leftPressed){
-      leftGrid.set_state(step, !prev_leftPressed);
+      leftGrid.set_state(0, step, !prev_leftPressed);
     }
     prev_leftPressed = this_leftPressed;
     this_leftPressed = false; //reset
@@ -83,13 +85,13 @@ void loop()
     prev_time = time;
     clock_until = time + 25;
 
-    //advance step
-    step = (step+1) % steps;
-
     //advance outputs
-    if(leftGrid.get_state(step, 1, 1)) {
+    if(leftGrid.get_weight(step, 1) > 0) {
       left_until = time + 25;
     }
+
+    //advance step
+    step = (step+1) % steps;
   }
   prev_clock_in = this_clock_in;
 
@@ -101,13 +103,27 @@ void loop()
 
 
   // visualization
-  int tracker[4] = {16,32,64,128};
+  int tracker[4] = {128,16,32,64};
+  int brightness[4] = {
+    0,
+    (pwm % 80) == 0,
+    (pwm % 40) == 0,
+    1
+  };
+  short viz = step % 4;
   byte state = 0
-    + tracker[step%4]
-    + B1000 * leftGrid.get_state(step, 1, 1)
-    + B0100 * leftGrid.get_state(step+1, 1, 1)
-    + B0010 * leftGrid.get_state(step+2, 1, 1)
-    + B0001 * leftGrid.get_state(step+3, 1, 1);
+    + tracker[viz] * (viz == 0 ? 1 : brightness[2])
+    // + B1000 * brightness[0]
+    // + B0100 * brightness[1]
+    // + B0010 * brightness[2]
+    // + B0001 * brightness[3];
+    + B1000 * brightness[leftGrid.get_weight(step-1, 1)]
+    + B0100 * brightness[leftGrid.get_weight(step+0, 1)]
+    + B0010 * brightness[leftGrid.get_weight(step+1, 1)]
+    + B0001 * brightness[leftGrid.get_weight(step+2, 1)];
+
     
   lights(0, state);
+
+  pwm = (pwm+1) % 80;
 }
