@@ -23,7 +23,7 @@ void lights(byte grw, byte orange)
   //  const byte red =    B01010100;
   //  const byte white =  B00000011;
   //  const byte grw = green + red + white;
-  //  const byte orange = B00111110;
+  //  const byte orange = B11111111;
 
   digitalWrite(led_latch, LOW);
   shiftOut(led_data, led_clock, LSBFIRST, grw);
