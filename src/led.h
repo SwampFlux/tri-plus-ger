@@ -10,9 +10,8 @@
  * light up when you press that button
  */
 
-#ifndef TRIGERPLUS_LED_H_
-#define TRIGERPLUS_LED_H_
-#endif
+#ifndef TRIPLUSGER_LED_H_
+#define TRIPLUSGER_LED_H_
 
 #include <Arduino.h>
 #include "pins.h"
@@ -30,3 +29,5 @@ void lights(byte grw, byte orange)
   shiftOut(led_data, led_clock, LSBFIRST, orange);
   digitalWrite(led_latch, HIGH);
 }
+
+#endif

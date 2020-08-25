@@ -1,3 +1,6 @@
+#ifndef TRIPLUSGER_PINS_H_
+#define TRIPLUSGER_PINS_H_
+
 /**
  * ATMEGA328 AU pin configuration & assignment
  * 
@@ -44,3 +47,5 @@
 #define top_button     0  //30 (pd0)
 #define left_button    1  //31 (pd1)
 #define right_button   2  //32 (pd2)
+
+#endif

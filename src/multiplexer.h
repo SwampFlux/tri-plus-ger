@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * multiplexed analog signals
  * all are read on A6 via the getMux() function
@@ -11,7 +13,7 @@
 #define record_button        B110 // 6
 #define record_button_master B111 // 7
 
-int getMux(char channels)
+int getTrigerMux(char channels)
 {
   digitalWrite(mux_select_0, bitRead(channels, 0));
   digitalWrite(mux_select_1, bitRead(channels, 1));
@@ -21,7 +23,7 @@ int getMux(char channels)
 
 bool getHostMode()
 {
-  int mode = getMux(host_vs_slave);
+  int mode = getTrigerMux(host_vs_slave);
   if (mode > 900)
     return 1; //host
   if (mode > 0)

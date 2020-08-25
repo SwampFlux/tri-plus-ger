@@ -38,20 +38,15 @@ class PatternPredictor
 public:
   PatternPredictor() {}
 
-  void Init()
-  {
+  void Init() {
     last_prediction_ = 0;
     history_pointer_ = 0;
-    //    std::fill(&history_[0], &history_[history_size], 0);
-    // for (int i = 0; i < history_size; i++)
-    // {
-    //   history_[i] = 0;
-    // }
-    history_ = {0};
+    for (unsigned int i = 0; i < history_size; i++) {
+      history_[i] = 0;
+    }
   }
 
-  uint32_t Predict(uint32_t value)
-  {
+  uint32_t Predict(uint32_t value) {
     // Record the incoming value.
     history_[history_pointer_] = value;
 
@@ -94,7 +89,7 @@ private:
   uint32_t history_pointer_;
   uint32_t last_prediction_;
 
-  DISALLOW_COPY_AND_ASSIGN(PatternPredictor);
+  // DISALLOW_COPY_AND_ASSIGN(PatternPredictor);
 };
 
 #endif // PATTERN_PREDICTOR_H

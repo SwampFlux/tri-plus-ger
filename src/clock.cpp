@@ -20,26 +20,21 @@
  * when the new frame is lower than the previous, then we have a new pulse
  */
 
-#include "pins.h"
 #include "clock.h"
 
-Clock::Clock(void) {
-  predictor.Init();
-}
-
 void Clock::clockIn(int sync_voltage) {
-  sync_debounce = sync_debounce << 1 + sync_voltage > 900;
-  syncCounter++;
+  sync_debounce = (sync_debounce << 1) + (sync_voltage > 900);
+  sync_counter++;
   if (sync_debounce == 1) {
     const uint32_t NEW_PERIOD = millis() - millis_prev_sync;
     sync_period = predictor.Predict(NEW_PERIOD);
-    syncCounter = 0;
+    sync_counter = 0;
   }
 }
 
-bool Clock::clockOut() {
-  const int MULTIPLIER_STEP = (getMux(clock_div_knob) * 10 + 512) / 1023 - 5;
-  const int MULTIPLIER = abs(MULTIPLIER_STEP) == 5
+bool Clock::clockOut(int division_voltage) {
+  const int MULTIPLIER_STEP = (division_voltage * 10 + 512) / 1023 - 5;
+  const unsigned int MULTIPLIER = abs(MULTIPLIER_STEP) == 5
                               ? 24
                               : 1 << abs(MULTIPLIER_STEP);
 
@@ -49,24 +44,24 @@ bool Clock::clockOut() {
     // actually just skip
 
     // if (something) {
-    //   this.clock_skips++;
-    //   if (this.clock_skips >= MULTIPLIER)
-    //   {
-    //     this.clock_skips = 0;
-    //   }
+      clock_skips++;
+      if (clock_skips >= MULTIPLIER)
+      {
+        clock_skips = 0;
+      }
     // }
   } else { // divide period (faster)
-    const NEXT_MODULO =
+    //const NEXT_MODULO =
     //prev_modulo
 
-    //millis_next_clock_on = now + periodPrediction / multiplier;
+    // millis_next_clock_on = now + periodPrediction / multiplier;
   }
-  millis_next_clock_off = millis_next_clock_on + 25;
+  // millis_next_clock_off = millis_next_clock_on + 25;
+  return false;
 }
 
-void Clock::reTrigger()
-{
-  this.skips = 0;
+void Clock::reTrigger() {
+  clock_skips = 0;
 }
 
 

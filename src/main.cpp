@@ -17,6 +17,7 @@
 #include "multiplexer.h"
 #include "led.h"
 #include "grid.h"
+#include "clock.h"
 
 void setup()
 {
@@ -59,7 +60,7 @@ short pwm = 0;
 void loop()
 {
   // local vars
-  int this_clock_in = getMux(clock_div_cv);
+  int this_clock_in = getTrigerMux(clock_div_cv);
   bool this_left = digitalRead(left_button);
 
   unsigned long time = millis();
@@ -110,7 +111,7 @@ void loop()
     (pwm % 40) == 0,
     1
   };
-  short viz = step / (24 * 4);
+  short viz = (step / 24) % 4;
   byte state = 0
     + tracker[viz] * (viz == 0 ? 1 : brightness[2])
     + B1000 * brightness[leftGrid.get_weight(step+0, 1)]
