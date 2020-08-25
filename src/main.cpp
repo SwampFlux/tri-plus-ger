@@ -113,15 +113,10 @@ void loop()
   short viz = step % 4;
   byte state = 0
     + tracker[viz] * (viz == 0 ? 1 : brightness[2])
-    // + B1000 * brightness[0]
-    // + B0100 * brightness[1]
-    // + B0010 * brightness[2]
-    // + B0001 * brightness[3];
-    + B1000 * brightness[leftGrid.get_weight(step-1, 1)]
-    + B0100 * brightness[leftGrid.get_weight(step+0, 1)]
-    + B0010 * brightness[leftGrid.get_weight(step+1, 1)]
-    + B0001 * brightness[leftGrid.get_weight(step+2, 1)];
-
+    + B1000 * brightness[leftGrid.get_weight(step+0, 1)]
+    + B0100 * brightness[leftGrid.get_weight(step+1, 1)]
+    + B0010 * brightness[leftGrid.get_weight(step+2, 1)]
+    + B0001 * brightness[leftGrid.get_weight(step+3, 1)];
     
   lights(0, state);
 
