@@ -1,6 +1,7 @@
 // Copyright 2013 Émilie Gillet.
 //
 // Author: Émilie Gillet (ol.gillet@gmail.com)
+// Modified for Arduino by Wray Bowling
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,17 +27,10 @@
 //
 // Pattern predictor for synchronization to drum patterns or clocks with swing.
 
-#ifndef STMLIB_ALGORITHMS_PATTERN_PREDICTOR_H_
-#define STMLIB_ALGORITHMS_PATTERN_PREDICTOR_H_
+#ifndef PATTERN_PREDICTOR_H
+#define PATTERN_PREDICTOR_H
 
-// #include "stmlib/stmlib.h"
-//
 #include <Arduino.h>
-//#include <algorithm>
-//#include <algorithm>
-//#include <cstdlib>
-
-//namespace stmlib {
 
 template <size_t history_size = 32, uint8_t max_candidate_period = 8>
 class PatternPredictor
@@ -49,10 +43,11 @@ public:
     last_prediction_ = 0;
     history_pointer_ = 0;
     //    std::fill(&history_[0], &history_[history_size], 0);
-    for (int i = 0; i < history_size; i++)
-    {
-      history_[i] = 0;
-    }
+    // for (int i = 0; i < history_size; i++)
+    // {
+    //   history_[i] = 0;
+    // }
+    history_ = {0};
   }
 
   uint32_t Predict(uint32_t value)
@@ -102,6 +97,4 @@ private:
   DISALLOW_COPY_AND_ASSIGN(PatternPredictor);
 };
 
-//}  // namespace stmlib
-
-#endif // STMLIB_ALGORITHMS_PATTERN_PREDICTOR_H_
+#endif // PATTERN_PREDICTOR_H

@@ -41,14 +41,14 @@ void setup()
   pinMode(led_clock, OUTPUT);
 }
 
-const bool slave_mode = getMux(host_vs_slave);
+// const bool slave_mode = getMux(host_vs_slave);
 Grid leftGrid;
 unsigned long prev_time = millis();
 unsigned long clock_until = millis();
 unsigned long left_until = millis();
 int prev_clock_in = 0;
 
-const int steps = 16;
+// const int steps = RESOLUTION;
 int step = 0;
 
 bool prev_leftPressed = false;
@@ -91,7 +91,7 @@ void loop()
     }
 
     //advance step
-    step = (step+1) % steps;
+    step = (step+1) % RESOLUTION;
   }
   prev_clock_in = this_clock_in;
 
@@ -110,7 +110,7 @@ void loop()
     (pwm % 40) == 0,
     1
   };
-  short viz = step % 4;
+  short viz = step / (24 * 4);
   byte state = 0
     + tracker[viz] * (viz == 0 ? 1 : brightness[2])
     + B1000 * brightness[leftGrid.get_weight(step+0, 1)]
