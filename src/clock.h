@@ -1,14 +1,14 @@
 #ifndef CLOCK_H
 #define CLOCK_H
 
-#include <Arduino.h>
 #include "peaks_pattern_predictor.h"
+#include "DebouncedBoolean.h"
 
 class Clock {
   private:
     PatternPredictor<32, 8> predictor;
-    byte sync_debounce = 0;
-    uint32_t millis_prev_sync = 0;
+    DebouncedBoolean sync_debounce;
+    uint32_t millis_prev_sync;
     uint32_t sync_period;
     uint32_t sync_counter;
     uint32_t prev_modulo;
@@ -26,9 +26,9 @@ class Clock {
     Clock() {
       predictor.Init();
     }
-    void clockIn(int sync_voltage);
-    bool clockOut(int division_voltage);
-    void reTrigger();
+    void clockIn(int sync_voltage, unsigned long time);
+    bool clockOut(int division_voltage, unsigned long time);
+    void reset();
     // void doTimeStuff();
 };
 

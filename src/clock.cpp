@@ -21,20 +21,21 @@
  */
 
 #include "clock.h"
+#include "preferences.h"
 
-void Clock::clockIn(int sync_voltage) {
-  sync_debounce = (sync_debounce << 1) + (sync_voltage > 900);
+void Clock::clockIn(int sync_voltage, unsigned long time) {
+  sync_debounce.set(sync_voltage > LOGIC_HIGH);
   sync_counter++;
-  if (sync_debounce == 1) {
-    const uint32_t NEW_PERIOD = millis() - millis_prev_sync;
+  if (sync_debounce.isFresh()) {
+    const uint32_t NEW_PERIOD = time - millis_prev_sync;
     sync_period = predictor.Predict(NEW_PERIOD);
     sync_counter = 0;
   }
 }
 
-bool Clock::clockOut(int division_voltage) {
+bool Clock::clockOut(int division_voltage, unsigned long time) {
   const int MULTIPLIER_STEP = (division_voltage * 10 + 512) / 1023 - 5;
-  const unsigned int MULTIPLIER = abs(MULTIPLIER_STEP) == 5
+  const unsigned int MULTIPLIER_FACTOR = abs(MULTIPLIER_STEP) == 5
                               ? 24
                               : 1 << abs(MULTIPLIER_STEP);
 
@@ -45,9 +46,10 @@ bool Clock::clockOut(int division_voltage) {
 
     // if (something) {
       clock_skips++;
-      if (clock_skips >= MULTIPLIER)
+      if (clock_skips >= MULTIPLIER_FACTOR)
       {
         clock_skips = 0;
+        return true;
       }
     // }
   } else { // divide period (faster)
@@ -60,7 +62,7 @@ bool Clock::clockOut(int division_voltage) {
   return false;
 }
 
-void Clock::reTrigger() {
+void Clock::reset() {
   clock_skips = 0;
 }
 

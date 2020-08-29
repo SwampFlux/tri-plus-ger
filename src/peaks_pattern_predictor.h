@@ -31,6 +31,9 @@
 #define PATTERN_PREDICTOR_H
 
 #include <Arduino.h>
+// #include <cstdint>
+// #include <stddef.h>
+// #include <stdint.h>
 
 template <size_t history_size = 32, uint8_t max_candidate_period = 8>
 class PatternPredictor

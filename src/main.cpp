@@ -44,9 +44,9 @@ void setup()
 
 // const bool slave_mode = getMux(host_vs_slave);
 Grid leftGrid;
-unsigned long prev_time = millis();
-unsigned long clock_until = millis();
-unsigned long left_until = millis();
+Clock clock;
+unsigned long clock_until = 0;
+unsigned long left_until = 0;
 int prev_clock_in = 0;
 
 // const int steps = RESOLUTION;
@@ -57,21 +57,21 @@ bool this_leftPressed = false;
 
 short pwm = 0;
 
-void loop()
-{
+void loop() {
   // local vars
   int this_clock_in = getTrigerMux(clock_div_cv);
   bool this_left = digitalRead(left_button);
+  int clock_div_knob__val = getTrigerMux(clock_div_knob);
 
   unsigned long time = millis();
-  // unsigned int delta = time - prev_time;
 
   // set state
   if(this_left) this_leftPressed = true;
 
   // clock advancement
-  if(prev_clock_in <= NOISE_FLOOR && this_clock_in > NOISE_FLOOR) // rising
-  {
+  clock.clockIn(this_clock_in, time);
+
+  if( clock.clockOut(clock_div_knob__val, time) ) {
 
     // write true only on the current step.
     // hold the button to clear subsequent steps
@@ -83,7 +83,6 @@ void loop()
     this_leftPressed = false; //reset
 
     //advance clock
-    prev_time = time;
     clock_until = time + 25;
 
     //advance outputs
