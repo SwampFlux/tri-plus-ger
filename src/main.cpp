@@ -44,6 +44,8 @@ void setup()
 
 // const bool slave_mode = getMux(host_vs_slave);
 Grid leftGrid;
+Grid topGrid;
+Grid rightGrid;
 Clock clock;
 unsigned long clock_until = 0;
 unsigned long left_until = 0;

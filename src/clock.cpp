@@ -35,22 +35,40 @@ bool Clock::isHigh(int sync_voltage, int division_knob, uint32_t time) {
 
     // predict milliseconds of period
     // ignoring clock division
-    predicted_period = predictor.Predict(DELTA);
-
-    time_accumulation = 0;
+    period_prediction = predictor.Predict(DELTA);
+    period_accumulation = 0;
     return true;
   } else {
-    time_accumulation += DELTA;
+    period_accumulation += DELTA;
   }
 
   // get multiplier from knob
-  const int STEP = (division_knob * 10 + 512) / 1023 - 5;
-  const unsigned int FACTOR = abs(STEP) == 5
-                            ? 24
-                            : 1 << abs(STEP);
-  return false;
+  const int8_t KNOB_STEP = (division_knob * 5 + 512) >> 10; // quick divide by 1023
+  
+  // if no division, duration of 1 pulse at 24ppqn is the same as period
+  if(KNOB_STEP == 0){
+    slot_duration = period_prediction;
+  } else if (KNOB_STEP == 1) {
+    // 16ppqn * 3/2 = 24ppqn
+    slot_duration = period_prediction * 1.5;
+  } else {
+    // 8ppqn, 4ppqn, 2ppqn, 1ppqn
+    const uint16_t MULTIPLIER = pow(2, KNOB_STEP - 2) * 3;
+    slot_duration = period_prediction * MULTIPLIER;
+  }
+
+  // which pulse are we on
+  const uint8_t PULSE_NUMBER = period_accumulation / slot_duration;
+  if(pulse_counter < 24 && PULSE_NUMBER > pulse_counter){
+    return true;
+    pulse_counter++;
+  } else {
+    return false;
+  }
+
 }
 
 void Clock::reset() {
-  clock_skips = 0;
+  pulse_counter = 0;
+  period_accumulation = 0;
 }
