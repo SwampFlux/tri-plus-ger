@@ -63,15 +63,13 @@ void loop() {
   bool this_left = digitalRead(left_button);
   int clock_div_knob__val = getTrigerMux(clock_div_knob);
 
-  unsigned long time = millis();
+  uint32_t time = millis();
 
   // set state
   if(this_left) this_leftPressed = true;
 
   // clock advancement
-  clock.clockIn(this_clock_in, time);
-
-  if( clock.clockOut(clock_div_knob__val, time) ) {
+  if( clock.isHigh(this_clock_in, clock_div_knob__val, time) ) {
 
     // write true only on the current step.
     // hold the button to clear subsequent steps

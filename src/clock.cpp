@@ -23,97 +23,34 @@
 #include "clock.h"
 #include "preferences.h"
 
-void Clock::clockIn(int sync_voltage, unsigned long time) {
+
+bool Clock::isHigh(int sync_voltage, int division_knob, uint32_t time) {
+  // measure time delta
+  const uint32_t DELTA = time - prev_time;
+  prev_time = time;
+
+  // reset if sync is rising
   sync_debounce.set(sync_voltage > LOGIC_HIGH);
-  sync_counter++;
   if (sync_debounce.isFresh()) {
-    const uint32_t NEW_PERIOD = time - millis_prev_sync;
-    sync_period = predictor.Predict(NEW_PERIOD);
-    sync_counter = 0;
+
+    // predict milliseconds of period
+    // ignoring clock division
+    predicted_period = predictor.Predict(DELTA);
+
+    time_accumulation = 0;
+    return true;
+  } else {
+    time_accumulation += DELTA;
   }
-}
 
-bool Clock::clockOut(int division_voltage, unsigned long time) {
-  const int MULTIPLIER_STEP = (division_voltage * 10 + 512) / 1023 - 5;
-  const unsigned int MULTIPLIER_FACTOR = abs(MULTIPLIER_STEP) == 5
-                              ? 24
-                              : 1 << abs(MULTIPLIER_STEP);
-
-  if (MULTIPLIER_STEP <= 0) {
-    // less knob = multiply period (slower)
-    //= this.sync_period * MULTIPLIER;
-    // actually just skip
-
-    // if (something) {
-      clock_skips++;
-      if (clock_skips >= MULTIPLIER_FACTOR)
-      {
-        clock_skips = 0;
-        return true;
-      }
-    // }
-  } else { // divide period (faster)
-    //const NEXT_MODULO =
-    //prev_modulo
-
-    // millis_next_clock_on = now + periodPrediction / multiplier;
-  }
-  // millis_next_clock_off = millis_next_clock_on + 25;
+  // get multiplier from knob
+  const int STEP = (division_knob * 10 + 512) / 1023 - 5;
+  const unsigned int FACTOR = abs(STEP) == 5
+                            ? 24
+                            : 1 << abs(STEP);
   return false;
 }
 
 void Clock::reset() {
   clock_skips = 0;
 }
-
-
-// void
-// doTimeStuff()
-// {
-
-//   // y = floor((x10+512)/1023-5)+5
-
-//   //  int multiplier = getMux(clock_div_knob) * 24 / 512 - 24;
-//   lights(0, multiplier);
-
-//   const uint32_t now = millis();
-
-//   bool clockIsHigh = getMux(clock_div_cv) > 512;
-
-//   if (clockIsHigh)
-//   {
-//     if (!prevClockWasHigh)
-//     { //new pulse
-//       uint32_t newPeriod = now - prevClockMillis;
-//       prevClockMillis = now;
-
-//       periodPrediction = bpm.Predict(newPeriod);
-//       //      lights(0, byte(periodPrediction)); //debug
-
-//       prevClockOffAtMillis = nextClockOffAtMillis;
-
-//       if (multiplier_step <= 0)
-//       { // multiply period, go slower
-//         nextClockOffAtMillis = now + periodPrediction * multiplier + 25;
-//       }
-//       else
-//       { // divide period, go faster
-//         nextClockOffAtMillis = now + periodPrediction / multiplier + 25;
-//       }
-//     }
-//     prevClockWasHigh = true;
-//   }
-//   else
-//   {
-//     prevClockWasHigh = false;
-//   }
-
-//   if (now < prevClockOffAtMillis)
-//   {
-//     digitalWrite(clock_out, HIGH);
-//   }
-//   else
-//   {
-//     digitalWrite(clock_out, LOW);
-//   }
-// }
