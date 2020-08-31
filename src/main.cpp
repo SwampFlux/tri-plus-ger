@@ -18,6 +18,7 @@
 #include "led.h"
 #include "grid.h"
 #include "clock.h"
+#include "DebouncedBoolean.h"
 
 void setup()
 {
@@ -48,27 +49,30 @@ Grid topGrid;
 Grid rightGrid;
 Clock clock;
 unsigned long clock_until = 0;
-unsigned long left_until = 0;
 int prev_clock_in = 0;
 
-// const int steps = RESOLUTION;
 int step = 0;
 
-bool prev_leftPressed = false;
-bool this_leftPressed = false;
+DebouncedBoolean leftPressed;
+unsigned long left_until = 0;
+DebouncedBoolean topPressed;
+unsigned long top_until = 0;
+DebouncedBoolean rightPressed;
+unsigned long right_until = 0;
 
 short pwm = 0;
 
 void loop() {
   // local vars
   int this_clock_in = getTrigerMux(clock_div_cv);
-  bool this_left = digitalRead(left_button);
+  leftPressed.set(digitalRead(left_button));
+  rightPressed.set(digitalRead(right_button));
+  topPressed.set(digitalRead(top_button));
   int clock_div_knob__val = getTrigerMux(clock_div_knob);
 
   uint32_t time = millis();
 
   // set state
-  if(this_left) this_leftPressed = true;
 
   // clock advancement
   if( clock.isHigh(this_clock_in, clock_div_knob__val, time) ) {
@@ -76,11 +80,15 @@ void loop() {
     // write true only on the current step.
     // hold the button to clear subsequent steps
     // full roll rate acts as original gate
-    if(this_leftPressed){
-      leftGrid.set_state(0, step, !prev_leftPressed);
+    if(leftPressed.state[1]){
+      leftGrid.set_state(0, step, leftPressed.isFresh());
     }
-    prev_leftPressed = this_leftPressed;
-    this_leftPressed = false; //reset
+    if(rightPressed.state[1]){
+      rightGrid.set_state(0, step, rightPressed.isFresh());
+    }
+    if(topPressed.state[1]){
+      topGrid.set_state(0, step, topPressed.isFresh());
+    }
 
     //advance clock
     clock_until = time + 25;
@@ -88,6 +96,12 @@ void loop() {
     //advance outputs
     if(leftGrid.get_weight(step, 1) > 0) {
       left_until = time + 25;
+    }
+    if(rightGrid.get_weight(step, 1) > 0) {
+      right_until = time + 25;
+    }
+    if(topGrid.get_weight(step, 1) > 0) {
+      top_until = time + 25;
     }
 
     //advance step
@@ -97,10 +111,9 @@ void loop() {
 
   // cv outputs
   digitalWrite(left_out, (left_until > time));
-  digitalWrite(top_out, this_leftPressed);
-  digitalWrite(right_out, prev_leftPressed);
+  digitalWrite(top_out, (top_until > time));
+  digitalWrite(right_out, (right_until > time));
   digitalWrite(clock_out , (clock_until > time) );
-
 
   // visualization
   int tracker[4] = {128,16,32,64};
@@ -110,7 +123,7 @@ void loop() {
     (pwm % 40) == 0,
     1
   };
-  short viz = (step / 24) % 4;
+  short viz = 4 * step / RESOLUTION;
   byte state = 0
     + tracker[viz] * (viz == 0 ? 1 : brightness[2])
     + B1000 * brightness[leftGrid.get_weight(step+0, 1)]

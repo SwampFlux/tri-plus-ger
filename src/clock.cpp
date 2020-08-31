@@ -1,30 +1,15 @@
 /**
- * collect the knob value
- * then slice the range in half
- * then normalize that half range so that 512 is in the center
- * split the half range into five roughly equal parts 100 units apart
- * convert the value into an integer ranging from -5 to +5
- * use the sign of the integer to determine if we multiply or divide
- * take the absolute value to use a lookup. range from 0-4 will be 2^x
- * 5 will equal 24
- * therefore zero will map to -5 which will divide a 24ppqn signal to quarter notes
- * therefore 1023 will map to +5 which will accept quarter notes and output 24ppqn
- * therefore 512 will map to 2^0=1 which will neither multiply nor divide
+ * Clock class
  * 
- * Next an internal clock is maintained.
- * Each loop, we can recalculate div/mult based on the knob
- * If a new input signal comes in, recalculate period
- * Time since last pulse sent > period * multiplier = new pulse
- * 
- * count up each frame. then modulo over multiplier * period
- * when the new frame is lower than the previous, then we have a new pulse
+ * Generates a 24ppqn signal from lower ppqn signals
+ * Outputs true from isHigh when a new pulse is reached
  */
 
 #include "clock.h"
 #include "preferences.h"
 
-
 bool Clock::isHigh(int sync_voltage, int division_knob, uint32_t time) {
+  
   // measure time delta
   const uint32_t DELTA = time - prev_time;
   prev_time = time;
@@ -36,7 +21,7 @@ bool Clock::isHigh(int sync_voltage, int division_knob, uint32_t time) {
     // predict milliseconds of period
     // ignoring clock division
     period_prediction = predictor.Predict(DELTA);
-    period_accumulation = 0;
+    reset();
     return true;
   } else {
     period_accumulation += DELTA;
@@ -44,7 +29,7 @@ bool Clock::isHigh(int sync_voltage, int division_knob, uint32_t time) {
 
   // get multiplier from knob
   const int8_t KNOB_STEP = (division_knob * 5 + 512) >> 10; // quick divide by 1023
-  
+
   // if no division, duration of 1 pulse at 24ppqn is the same as period
   if(KNOB_STEP == 0){
     slot_duration = period_prediction;
@@ -57,15 +42,14 @@ bool Clock::isHigh(int sync_voltage, int division_knob, uint32_t time) {
     slot_duration = period_prediction * MULTIPLIER;
   }
 
-  // which pulse are we on
+  // if pulse has advanced, return true
   const uint8_t PULSE_NUMBER = period_accumulation / slot_duration;
   if(pulse_counter < 24 && PULSE_NUMBER > pulse_counter){
-    return true;
     pulse_counter++;
-  } else {
-    return false;
+    return true;
   }
 
+  return false;
 }
 
 void Clock::reset() {
