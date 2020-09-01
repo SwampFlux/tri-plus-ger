@@ -11,7 +11,7 @@
 bool Clock::isHigh(int sync_voltage, int division_knob, uint32_t time) {
   
   // measure time delta
-  const uint32_t DELTA = time - prev_time;
+  const uint8_t DELTA = time - prev_time;
   prev_time = time;
 
   // reset if sync is rising

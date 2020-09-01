@@ -43,10 +43,6 @@ void setup()
   pinMode(led_clock, OUTPUT);
 }
 
-// const bool slave_mode = getMux(host_vs_slave);
-Grid leftGrid;
-Grid topGrid;
-Grid rightGrid;
 Clock clock;
 unsigned long clock_until = 0;
 int prev_clock_in = 0;
@@ -64,13 +60,16 @@ short pwm = 0;
 
 void loop() {
   // local vars
-  int this_clock_in = getTrigerMux(clock_div_cv);
+  uint8_t this_clock_in = getTrigerMux(clock_div_cv);
+  topPressed.set(digitalRead(top_button));
   leftPressed.set(digitalRead(left_button));
   rightPressed.set(digitalRead(right_button));
-  topPressed.set(digitalRead(top_button));
-  int clock_div_knob__val = getTrigerMux(clock_div_knob);
+  uint8_t clock_div_knob__val = getTrigerMux(clock_div_knob);
+  uint8_t threshold = getTrigerMux(roll_rate_knob) * 4 / 1024;
 
   uint32_t time = millis();
+
+  uint8_t *weights;
 
   // set state
 
@@ -80,28 +79,26 @@ void loop() {
     // write true only on the current step.
     // hold the button to clear subsequent steps
     // full roll rate acts as original gate
-    if(leftPressed.state[1]){
-      leftGrid.set_state(0, step, leftPressed.isFresh());
-    }
-    if(rightPressed.state[1]){
-      rightGrid.set_state(0, step, rightPressed.isFresh());
-    }
-    if(topPressed.state[1]){
-      topGrid.set_state(0, step, topPressed.isFresh());
-    }
+    setWeight(
+      step,
+      topPressed.isFresh(),
+      leftPressed.isFresh(),
+      rightPressed.isFresh()
+    );
 
     //advance clock
     clock_until = time + 25;
 
     //advance outputs
-    if(leftGrid.get_weight(step, 1) > 0) {
+    weights = getWeight(step, 1);
+    if(weights[0] > threshold) {
+      top_until = time + 25;
+    }
+    if(weights[1] > threshold) {
       left_until = time + 25;
     }
-    if(rightGrid.get_weight(step, 1) > 0) {
+    if(weights[2] > threshold) {
       right_until = time + 25;
-    }
-    if(topGrid.get_weight(step, 1) > 0) {
-      top_until = time + 25;
     }
 
     //advance step
@@ -124,14 +121,23 @@ void loop() {
     1
   };
   short viz = 4 * step / RESOLUTION;
-  byte state = 0
+  uint8_t grw = 0
+    // reds
+    + B01000000 * brightness[weights[0]]
+    + B00010000 * brightness[weights[0]]
+    + B00000100 * brightness[weights[0]]
+  ;
+
+  uint8_t oranges = 0
     + tracker[viz] * (viz == 0 ? 1 : brightness[2])
-    + B1000 * brightness[leftGrid.get_weight(step+0, 1)]
-    + B0100 * brightness[leftGrid.get_weight(step+1, 1)]
-    + B0010 * brightness[leftGrid.get_weight(step+2, 1)]
-    + B0001 * brightness[leftGrid.get_weight(step+3, 1)];
+    + threshold
+    // + B1000 * brightness[leftGrid.get_weight(step+0, 1)]
+    // + B0100 * brightness[leftGrid.get_weight(step+1, 1)]
+    // + B0010 * brightness[leftGrid.get_weight(step+2, 1)]
+    // + B0001 * brightness[leftGrid.get_weight(step+3, 1)]
+  ;
     
-  lights(0, state);
+  lights(grw, oranges);
 
   pwm = (pwm+1) % 80;
 }

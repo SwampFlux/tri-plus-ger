@@ -16,7 +16,7 @@
 #include <Arduino.h>
 #include "pins.h"
 
-void lights(byte grw, byte orange)
+void lights(uint8_t grw, uint8_t orange)
 {
   //  const byte green =  B10101000;
   //  const byte red =    B01010100;
