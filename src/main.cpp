@@ -15,7 +15,7 @@
 #include "preferences.h"
 #include "pins.h"
 #include "multiplexer.h"
-#include "led.h"
+#include "lights.h"
 #include "grid.h"
 #include "clock.h"
 #include "DebouncedBoolean.h"
