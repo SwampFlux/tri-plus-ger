@@ -20,7 +20,7 @@ class Clock {
     Clock() {
       predictor.Init();
     }
-    bool isHigh(int sync_voltage, int division_knob, uint32_t time);
+    bool isHigh(uint16_t sync_voltage, uint16_t division_knob, uint32_t time);
     void reset();
 };
 

@@ -45,9 +45,8 @@ void setup()
 
 Clock clock;
 unsigned long clock_until = 0;
-int prev_clock_in = 0;
 
-int step = 0;
+uint16_t step = 0;
 
 DebouncedBoolean leftPressed;
 unsigned long left_until = 0;
@@ -56,15 +55,15 @@ unsigned long top_until = 0;
 DebouncedBoolean rightPressed;
 unsigned long right_until = 0;
 
-short pwm = 0;
+uint8_t pwm = 0;
 
 void loop() {
   // local vars
-  uint8_t this_clock_in = getTrigerMux(clock_div_cv);
+  uint16_t this_clock_in = getTrigerMux(clock_div_cv);
   topPressed.set(digitalRead(top_button));
   leftPressed.set(digitalRead(left_button));
   rightPressed.set(digitalRead(right_button));
-  uint8_t clock_div_knob__val = getTrigerMux(clock_div_knob);
+  uint16_t clock_div_knob__val = getTrigerMux(clock_div_knob);
   uint8_t threshold = getTrigerMux(roll_rate_knob) * 4 / 1024;
 
   uint32_t time = millis();

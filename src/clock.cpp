@@ -6,10 +6,9 @@
  */
 
 #include "clock.h"
-#include "preferences.h"
 
-bool Clock::isHigh(int sync_voltage, int division_knob, uint32_t time) {
-  
+bool Clock::isHigh(uint16_t sync_voltage, uint16_t division_knob, uint32_t time) {
+
   // measure time delta
   const uint8_t DELTA = time - prev_time;
   prev_time = time;
