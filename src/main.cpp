@@ -81,11 +81,13 @@ void loop() {
 
     // write state for previous step
     if(isRecording) {
-      uint8_t new_weight;
-      for(int i; i<3; i++) {
-        new_weight += constrain(weights[i] + (BUTTONS[i]?2:0) - 1, 0, 4) << (2*i);
+      uint8_t new_weights = 0;
+      for(int i=0; i<3; i++) {
+        uint8_t limited_weight = constrain(int(weights[i]) + (BUTTONS[i]?2:0) - 1, 0, 4);
+        // [2] [1] [0]
+        new_weights += limited_weight << (i*2);
       }
-      weight_ram[step] = new_weight;
+      weight_ram[step] = new_weights;
     }
 
     // reset state for next step
@@ -95,8 +97,11 @@ void loop() {
     step = (step+1) % RESOLUTION;
 
     // extract individual channel weights from memory
-    for(int i; i<3; i++){
-      weights[i] = (weight_ram[step] >> (2*i)) & B11;
+    // [2] [1] [0]
+    uint8_t buffer = weight_ram[step];
+    for(int i; i<3; i++) {
+      weights[i] = buffer & B11;
+      buffer = buffer >> 2;
     }
 
     // advance outputs
