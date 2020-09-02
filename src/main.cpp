@@ -10,15 +10,28 @@
  */
 
 #include <Arduino.h>
+#include <EEPROM.h>
 #define DEBUG true
 
 #include "preferences.h"
 #include "pins.h"
 #include "multiplexer.h"
-// #include "lights.h"
-#include "grid.h"
+#include "lights.h"
+// #include "grid.h"
 #include "clock.h"
 #include "DebouncedBoolean.h"
+
+// state
+Clock clock;
+unsigned long clock_until = 0;
+uint16_t step = 0;
+bool leftPressed, topPressed, rightPressed = false;
+uint32_t left_until, top_until, right_until = 0;
+DebouncedBoolean record_button_value;
+bool isRecording = false;
+uint8_t weight_ram[RESOLUTION] = {0};
+uint8_t weights[3] = {0};
+uint8_t pwm = 0;
 
 void setup()
 {
@@ -41,67 +54,77 @@ void setup()
   pinMode(led_latch, OUTPUT);
   pinMode(led_data, OUTPUT);
   pinMode(led_clock, OUTPUT);
+  // for(int i=0; i<RESOLUTION; i++){
+  //   weight_ram[i] = random(B00111111);
+  // }
 }
 
-Clock clock;
-unsigned long clock_until = 0;
-
-uint16_t step = 0;
-
-DebouncedBoolean leftPressed;
-unsigned long left_until = 0;
-DebouncedBoolean topPressed;
-unsigned long top_until = 0;
-DebouncedBoolean rightPressed;
-unsigned long right_until = 0;
-
-uint8_t pwm = 0;
-
 void loop() {
+  // state updates
+  topPressed |= digitalRead(top_button);
+  leftPressed |= digitalRead(left_button);
+  rightPressed |= digitalRead(right_button);
+  record_button_value.set( getTrigerMux(record_button) > LOGIC_HIGH );
+  if(record_button_value.isRising()){
+    isRecording = !isRecording;
+  }
+
   // local vars
   uint16_t this_clock_in = getTrigerMux(clock_div_cv);
-  topPressed.set(digitalRead(top_button));
-  leftPressed.set(digitalRead(left_button));
-  rightPressed.set(digitalRead(right_button));
   uint16_t clock_div_knob__val = getTrigerMux(clock_div_knob);
-  uint8_t threshold = getTrigerMux(roll_rate_knob) * 4 / 1024;
+  uint8_t rollup = 3 - (getTrigerMux(roll_rate_knob) * 3 / 1024);
   uint32_t time = millis();
-  uint8_t weights[3];
+  const bool BUTTONS[3] = {topPressed, leftPressed, rightPressed};
 
   // clock advancement
   if( clock.isHigh(this_clock_in, clock_div_knob__val, time) ) {
 
-    // write true only on the current step.
-    // hold the button to clear subsequent steps
-    // full roll rate acts as original gate
-    setWeight(
-      step,
-      topPressed.isRising(),
-      leftPressed.isRising(),
-      rightPressed.isRising()
-    );
+    // write state for previous step
+    if(isRecording) {
+      // for(uint8_t button; button<3; button++) {
+        // char weight = weight_ram[button][step] - 1
+        // + (BUTTONS[button] ? 1 : 0);
+        // weight_ram[button][step] = constrain(weight, 0, 4);
 
-    //advance clock
-    clock_until = time + 25;
+    // for(uint8_t i; i<3; i++) {
 
-    //advance outputs
-    uint8_t weight_byte = getWeight(step, threshold);
-    weights[0] = ((weight_byte & B00110000) >> 4);
-    weights[1] = ((weight_byte & B00001100) >> 2);
-    weights[2] =  (weight_byte & B00000011);
-    if(weights[0] > threshold) {
+    //   weights[i] = constrain(
+    //     (buffer & B11) + (BUTTONS[i]?1:0) - 1,
+    //     0, 4
+    //   );
+    //   buffer = buffer >> 2;
+    // }
+
+        weight_ram[step] = random(B00111111);
+      // }
+    }
+
+    // reset state for next step
+    topPressed = leftPressed = rightPressed = false;
+
+    // advance step
+    step = (step+1) % RESOLUTION;
+
+    // extract individual channel weights from memory
+    uint8_t buffer = weight_ram[step];
+    for(uint8_t i; i<3; i++) {
+      weights[i] = buffer & B11;
+      buffer = buffer >> 2;
+    }
+
+    // advance outputs
+    if((step % PPQN) == 0) {
+      clock_until = time + 25;
+    }
+    if(weights[0] >= rollup) {
       top_until = time + 25;
     }
-    if(weights[1] > threshold) {
+    if(weights[1] >= rollup) {
       left_until = time + 25;
     }
-    if(weights[2] > threshold) {
+    if(weights[2] >= rollup) {
       right_until = time + 25;
     }
-
-    //advance step
-    step = (step+1) % RESOLUTION;
-    
   }
 
   // cv outputs
@@ -118,27 +141,40 @@ void loop() {
     (pwm % 40) == 0,
     1
   };
-  short viz = 4 * step / RESOLUTION;
+  uint8_t viz = 4 * step / RESOLUTION;
 
   uint8_t grw = 0
+    // greens
+    // + B10000000 * brightness[weights[0]] * (rollup <= weights[0])
+    // + B00100000 * brightness[weights[1]] * (rollup <= weights[1])
+    // + B00001000 * brightness[weights[2]] * (rollup <= weights[2])
     // reds
-    + B01000000 * brightness[weights[0]]
-    + B00010000 * brightness[weights[1]]
-    + B00000100 * brightness[weights[2]]
+    + B01000000 * brightness[weights[0]] //* (rollup > weights[0])
+    + B00010000 * brightness[weights[1]] //* (rollup > weights[1])
+    + B00000100 * brightness[weights[2]] //* (rollup > weights[2])
+    // alt
+    + B00000010 * brightness[2]
+    // record
+    + B00000001 * isRecording
   ;
 
   uint8_t oranges = 0
     + tracker[viz] * (viz == 0 ? 1 : brightness[2])
-    + (step & B1111)
-    // + B1000 * brightness[leftGrid.get_weight(step+0, 1)]
-    // + B0100 * brightness[leftGrid.get_weight(step+1, 1)]
-    // + B0010 * brightness[leftGrid.get_weight(step+2, 1)]
-    // + B0001 * brightness[leftGrid.get_weight(step+3, 1)]
+    // + EEPROM.read(step)
+    // + (B11111111 & step)
+    // + weight_ram[step]
+    // + rollup
+    + B1000 * brightness[weight_ram[step] >> 4]
+    + B0100 * brightness[weight_ram[(step+1)%RESOLUTION] >> 4]
+    + B0010 * brightness[weight_ram[(step+2)%RESOLUTION] >> 4]
+    + B0001 * brightness[weight_ram[(step+3)%RESOLUTION] >> 4]
   ;
     
-  // lights(grw, (step & 255));
+  lights(grw, oranges);
 
 
   pwm = (pwm+1) % 80;
   
 }
+
+

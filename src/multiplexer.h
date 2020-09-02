@@ -12,7 +12,7 @@
 #define record_button        B110 // 6
 #define record_button_master B111 // 7
 
-int getTrigerMux(char channels)
+uint16_t getTrigerMux(char channels)
 {
   digitalWrite(mux_select_0, bitRead(channels, 0));
   digitalWrite(mux_select_1, bitRead(channels, 1));

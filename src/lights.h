@@ -3,7 +3,7 @@
  *
  * red: the red polarity of the 3 status lights
  * green: the green polarity of the 3 status lights
- * white: record and alt button backlights (in that order)
+ * white: alt and record button backlights (in that order)
  * orange: bar and beat display
  *
  * note that play/pause, retrigger, and roll lights only

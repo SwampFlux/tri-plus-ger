@@ -6,7 +6,7 @@
  */
 
 #include "clock.h"
-#include "lights.h"
+// #include "lights.h"
 
 bool Clock::isHigh(uint16_t sync_voltage, uint16_t division_knob, uint32_t time) {
 
@@ -31,7 +31,6 @@ bool Clock::isHigh(uint16_t sync_voltage, uint16_t division_knob, uint32_t time)
   const uint8_t MULTIPLIER = pow(2, KNOB_STEP - 1) * 3;
 
   const uint16_t PULSE_NUMBER = PROGRESS * MULTIPLIER / period_prediction;
-  lights(0, PULSE_NUMBER);
   
   if(PULSE_NUMBER != prev_pulse_number){
     prev_pulse_number = PULSE_NUMBER;
