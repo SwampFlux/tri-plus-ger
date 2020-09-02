@@ -1,27 +1,23 @@
-#ifndef CLOCK_H
-#define CLOCK_H
+#pragma once
 
+#include "preferences.h"
 #include "peaks_pattern_predictor.h"
 #include "DebouncedBoolean.h"
 
 class Clock {
   private:
-    uint32_t prev_time;
+    
     DebouncedBoolean sync_debounce;
 
     PatternPredictor<32, 8> predictor;
-    uint16_t period_prediction;
-    uint16_t period_accumulation;
-    uint8_t slot_duration;
-    
-    uint8_t pulse_counter = 0;
+    uint32_t time_of_last_sync;
+    uint32_t period_prediction;
+    uint16_t prev_pulse_number;
 
   public:
     Clock() {
       predictor.Init();
     }
     bool isHigh(uint16_t sync_voltage, uint16_t division_knob, uint32_t time);
-    void reset();
+    void reset(uint32_t time);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef MULTIPLEXER_H
-#define MULTIPLEXER_H
+#pragma once
 /**
  * multiplexed analog signals
  * all are read on A6 via the getMux() function
@@ -30,5 +29,3 @@ bool getHostMode()
     return 0; //slave
   return 1;   //normal
 }
-
-#endif

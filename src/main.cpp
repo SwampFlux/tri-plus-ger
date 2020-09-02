@@ -15,7 +15,7 @@
 #include "preferences.h"
 #include "pins.h"
 #include "multiplexer.h"
-#include "lights.h"
+// #include "lights.h"
 #include "grid.h"
 #include "clock.h"
 #include "DebouncedBoolean.h"
@@ -65,12 +65,8 @@ void loop() {
   rightPressed.set(digitalRead(right_button));
   uint16_t clock_div_knob__val = getTrigerMux(clock_div_knob);
   uint8_t threshold = getTrigerMux(roll_rate_knob) * 4 / 1024;
-
   uint32_t time = millis();
-
-  uint8_t *weights;
-
-  // set state
+  uint8_t weights[3];
 
   // clock advancement
   if( clock.isHigh(this_clock_in, clock_div_knob__val, time) ) {
@@ -80,16 +76,19 @@ void loop() {
     // full roll rate acts as original gate
     setWeight(
       step,
-      topPressed.isFresh(),
-      leftPressed.isFresh(),
-      rightPressed.isFresh()
+      topPressed.isRising(),
+      leftPressed.isRising(),
+      rightPressed.isRising()
     );
 
     //advance clock
     clock_until = time + 25;
 
     //advance outputs
-    weights = getWeight(step, 1);
+    uint8_t weight_byte = getWeight(step, threshold);
+    weights[0] = ((weight_byte & B00110000) >> 4);
+    weights[1] = ((weight_byte & B00001100) >> 2);
+    weights[2] =  (weight_byte & B00000011);
     if(weights[0] > threshold) {
       top_until = time + 25;
     }
@@ -102,8 +101,8 @@ void loop() {
 
     //advance step
     step = (step+1) % RESOLUTION;
+    
   }
-  prev_clock_in = this_clock_in;
 
   // cv outputs
   digitalWrite(left_out, (left_until > time));
@@ -120,23 +119,26 @@ void loop() {
     1
   };
   short viz = 4 * step / RESOLUTION;
+
   uint8_t grw = 0
     // reds
     + B01000000 * brightness[weights[0]]
-    + B00010000 * brightness[weights[0]]
-    + B00000100 * brightness[weights[0]]
+    + B00010000 * brightness[weights[1]]
+    + B00000100 * brightness[weights[2]]
   ;
 
   uint8_t oranges = 0
     + tracker[viz] * (viz == 0 ? 1 : brightness[2])
-    + threshold
+    + (step & B1111)
     // + B1000 * brightness[leftGrid.get_weight(step+0, 1)]
     // + B0100 * brightness[leftGrid.get_weight(step+1, 1)]
     // + B0010 * brightness[leftGrid.get_weight(step+2, 1)]
     // + B0001 * brightness[leftGrid.get_weight(step+3, 1)]
   ;
     
-  lights(grw, oranges);
+  // lights(grw, (step & 255));
+
 
   pwm = (pwm+1) % 80;
+  
 }

@@ -6,52 +6,41 @@
  */
 
 #include "clock.h"
+#include "lights.h"
 
 bool Clock::isHigh(uint16_t sync_voltage, uint16_t division_knob, uint32_t time) {
 
-  // measure time delta
-  const uint8_t DELTA = time - prev_time;
-  prev_time = time;
-
-  // reset if sync is rising
-  sync_debounce.set(sync_voltage > LOGIC_HIGH);
-  if (sync_debounce.isFresh()) {
-
-    // predict milliseconds of period
-    // ignoring clock division
-    period_prediction = predictor.Predict(DELTA);
-    reset();
-    return true;
-  } else {
-    period_accumulation += DELTA;
-  }
-
   // get multiplier from knob
-  const int8_t KNOB_STEP = (division_knob * 5 + 512) >> 10; // quick divide by 1023
+  const int8_t KNOB_STEP = (division_knob * 5 + 512) >> 10; // >>10 quick divides by 1023
 
-  // if no division, duration of 1 pulse at 24ppqn is the same as period
-  if(KNOB_STEP == 0){
-    slot_duration = period_prediction;
-  } else if (KNOB_STEP == 1) {
-    // 16ppqn * 3/2 = 24ppqn
-    slot_duration = period_prediction * 1.5;
-  } else {
-    // 8ppqn, 4ppqn, 2ppqn, 1ppqn
-    const uint16_t MULTIPLIER = pow(2, KNOB_STEP - 2) * 3;
-    slot_duration = period_prediction * MULTIPLIER;
+  // measure time between syncs
+  const uint32_t PROGRESS = time - time_of_last_sync;
+
+  // if sync is rising
+  sync_debounce.set(sync_voltage > LOGIC_HIGH);
+  if (sync_debounce.isRising()) {
+
+    // repredict milliseconds of period
+    period_prediction = predictor.Predict(PROGRESS);
+    reset(time);
+
+    // no further logic is necessary if no multiplier
+    if (KNOB_STEP == 0) return true;
   }
 
-  // if pulse has advanced, return true
-  const uint8_t PULSE_NUMBER = period_accumulation / slot_duration;
-  if(pulse_counter < 24 && PULSE_NUMBER > pulse_counter){
-    pulse_counter++;
+  const uint8_t MULTIPLIER = pow(2, KNOB_STEP - 1) * 3;
+
+  const uint16_t PULSE_NUMBER = PROGRESS * MULTIPLIER / period_prediction;
+  lights(0, PULSE_NUMBER);
+  
+  if(PULSE_NUMBER != prev_pulse_number){
+    prev_pulse_number = PULSE_NUMBER;
     return true;
   }
 
   return false;
 }
 
-void Clock::reset() {
-  pulse_counter = 0;
-  period_accumulation = 0;
+void Clock::reset(uint32_t time) {
+  time_of_last_sync = time;
 }

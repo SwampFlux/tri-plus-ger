@@ -3,7 +3,7 @@
  * Best used on continuously read logic inputs
  *
  * set() shifts truthiness into the past
- * isFresh() only returns true if no past value is true
+ * isRising() only returns true if no past value is true
  */
 
 #pragma once
@@ -14,15 +14,15 @@ class DebouncedBoolean {
 
     bool state[2] = {false};
 
-    void set(bool value){
+    void set(bool value) {
       state[0] = state[1];
       state[1] = value;
     }
 
-    bool isFresh(){
+    bool isRising() {
       return state[0] == false && state[1] == true;
     }
-    void reset(){
+    void reset() {
       state[2] = {false};
     }
 };
