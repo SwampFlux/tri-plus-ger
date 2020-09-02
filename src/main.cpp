@@ -10,7 +10,7 @@
  */
 
 #include <Arduino.h>
-#include <EEPROM.h>
+// #include <EEPROM.h>
 #define DEBUG true
 
 #include "preferences.h"
@@ -54,9 +54,9 @@ void setup()
   pinMode(led_latch, OUTPUT);
   pinMode(led_data, OUTPUT);
   pinMode(led_clock, OUTPUT);
-  // for(int i=0; i<RESOLUTION; i++){
-  //   weight_ram[i] = random(B00111111);
-  // }
+  for(int i=0; i<RESOLUTION; i++){
+    weight_ram[i] = random(B00111111);
+  }
 }
 
 void loop() {
@@ -81,22 +81,11 @@ void loop() {
 
     // write state for previous step
     if(isRecording) {
-      // for(uint8_t button; button<3; button++) {
-        // char weight = weight_ram[button][step] - 1
-        // + (BUTTONS[button] ? 1 : 0);
-        // weight_ram[button][step] = constrain(weight, 0, 4);
-
-    // for(uint8_t i; i<3; i++) {
-
-    //   weights[i] = constrain(
-    //     (buffer & B11) + (BUTTONS[i]?1:0) - 1,
-    //     0, 4
-    //   );
-    //   buffer = buffer >> 2;
-    // }
-
-        weight_ram[step] = random(B00111111);
-      // }
+      uint8_t new_weight;
+      for(int i; i<3; i++) {
+        new_weight += constrain(weights[i] + (BUTTONS[i]?2:0) - 1, 0, 4) << (2*i);
+      }
+      weight_ram[step] = new_weight;
     }
 
     // reset state for next step
@@ -106,10 +95,8 @@ void loop() {
     step = (step+1) % RESOLUTION;
 
     // extract individual channel weights from memory
-    uint8_t buffer = weight_ram[step];
-    for(uint8_t i; i<3; i++) {
-      weights[i] = buffer & B11;
-      buffer = buffer >> 2;
+    for(int i; i<3; i++){
+      weights[i] = (weight_ram[step] >> (2*i)) & B11;
     }
 
     // advance outputs
@@ -145,13 +132,13 @@ void loop() {
 
   uint8_t grw = 0
     // greens
-    // + B10000000 * brightness[weights[0]] * (rollup <= weights[0])
-    // + B00100000 * brightness[weights[1]] * (rollup <= weights[1])
-    // + B00001000 * brightness[weights[2]] * (rollup <= weights[2])
+    + B10000000 * brightness[weights[0]] * (rollup <= weights[0])
+    + B00100000 * brightness[weights[1]] * (rollup <= weights[1])
+    + B00001000 * brightness[weights[2]] * (rollup <= weights[2])
     // reds
-    + B01000000 * brightness[weights[0]] //* (rollup > weights[0])
-    + B00010000 * brightness[weights[1]] //* (rollup > weights[1])
-    + B00000100 * brightness[weights[2]] //* (rollup > weights[2])
+    + B01000000 * brightness[weights[0]] * (rollup > weights[0])
+    + B00010000 * brightness[weights[1]] * (rollup > weights[1])
+    + B00000100 * brightness[weights[2]] * (rollup > weights[2])
     // alt
     + B00000010 * brightness[2]
     // record
