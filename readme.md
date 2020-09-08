@@ -40,7 +40,7 @@ I have been designing a step sequencer module of my own called [Probagate](https
 This repository has a [GNU General Public License v3.0](https://github.com/MicroWrave/tri-plus-ger/blob/master/LICENSE). It is NOT FOR SALE. Clock pattern detection code was borrowed from [Emilie Gillet's stmlib](https://github.com/pichenettes/stmlib/blob/fd5a4203acf7741f8e13bd4c067ac465bfd1bf25/algorithms/pattern_predictor.h) and modified to work with Arduino. The original is under [MIT License](https://github.com/pichenettes/stmlib/blob/fd5a4203acf7741f8e13bd4c067ac465bfd1bf25/LICENSE). The MIT copyright notice and permission notice are included in the [pattern detection file](https://github.com/MicroWrave/tri-plus-ger/blob/master/src/peaks_pattern_predictor.h).
 
 ### See Also
-- [Probagate](https://github.com/MicroWrave/Probagate), 
+- [Probagate](https://github.com/MicroWrave/Probagate) a eurorack module which will turn Tri+ger's special features back into hardware
 - [Tri+ger Muffwiggler Forum thread](https://www.muffwiggler.com/forum/viewtopic.php?f=16&t=231526&p=3258064#p3258064)
 - [Richland Synth Fest 2020 talk](https://www.twitch.tv/videos/664368287) in which I explain my firmware hacking process
 - [Jason H. J. Lim](https://github.com/jhjlim) designed the original Tri-ger
