@@ -44,4 +44,4 @@ This repository has a [GNU General Public License v3.0](https://github.com/Micro
 - [Tri+ger Muffwiggler Forum thread](https://www.muffwiggler.com/forum/viewtopic.php?f=16&t=231526&p=3258064#p3258064)
 - [Richland Synth Fest 2020 talk](https://www.twitch.tv/videos/664368287) in which I explain my firmware hacking process
 - [Jason H. J. Lim](https://github.com/jhjlim) designed the original Tri-ger
-- [Qu-Bit Electronics](https://github.com/Qu-Bit-Electronix) manufactured the original Tri-ger
+- [Qu-Bit Electronix](https://github.com/Qu-Bit-Electronix) manufactured the original Tri-ger

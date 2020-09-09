@@ -22,6 +22,8 @@
 #include "DebouncedBoolean.h"
 
 // state
+uint16_t prev_clock_div_knob__val = 1;
+uint16_t clock_input_multiplier = 1;
 Clock clock;
 unsigned long clock_until = 0;
 uint16_t step = 0;
@@ -64,20 +66,32 @@ void loop() {
   topPressed |= digitalRead(top_button);
   leftPressed |= digitalRead(left_button);
   rightPressed |= digitalRead(right_button);
+
   record_button_value.set( getTrigerMux(record_button) > LOGIC_HIGH );
   if(record_button_value.isRising()){
     isRecording = !isRecording;
   }
 
+
+
+
+
   // local vars
-  uint16_t this_clock_in = getTrigerMux(clock_div_cv);
+  uint16_t clock_in_value = getTrigerMux(clock_div_cv);
+  uint16_t tempo_value = getTrigerMux(tempo);
   uint16_t clock_div_knob__val = getTrigerMux(clock_div_knob);
   uint8_t rollup = 3 - (getTrigerMux(roll_rate_knob) * 3 / 1024);
   uint32_t time = millis();
   const bool BUTTONS[3] = {topPressed, leftPressed, rightPressed};
+  bool isAltPressed = digitalRead(alt);
+
+  if(isAltPressed && (clock_div_knob__val != prev_clock_div_knob__val)) {
+    clock_input_multiplier = clock_div_knob__val;
+  }
+  prev_clock_div_knob__val = clock_div_knob__val;
 
   // clock advancement
-  if( clock.isHigh(this_clock_in, clock_div_knob__val, time) ) {
+  if( clock.isHigh(tempo_value, clock_input_multiplier, time) ) {
 
     // write state for previous step
     if(isRecording) {
@@ -145,7 +159,7 @@ void loop() {
     + B00010000 * brightness[weights[1]] * (rollup > weights[1])
     + B00000100 * brightness[weights[2]] * (rollup > weights[2])
     // alt
-    + B00000010 * brightness[2]
+    + B00000010 * isAltPressed
     // record
     + B00000001 * isRecording
   ;
