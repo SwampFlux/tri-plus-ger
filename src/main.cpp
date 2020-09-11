@@ -15,13 +15,30 @@
 
 #include "preferences.h"
 #include "pins.h"
-#include "multiplexer.h"
 #include "lights.h"
-// #include "grid.h"
 #include "clock.h"
 #include "DebouncedBoolean.h"
 
-// state
+//// global state
+// clock out
+// arcade buttons
+
+// clock input multiplier (alt+clock division)
+// beat quantizer (clock division)
+int8_t knobStep (uint16_t v) {
+  return (v * 5 + 512) >> 10;  // >>10 quick divides by 1023
+}
+// slip/bank (tempo mid-range)
+
+// weight (roll rate)
+
+// retrigger
+// tap tempo (retrigger?)
+// play/pause
+// use step offset (roll button)
+// record
+// alt
+
 uint16_t prev_clock_div_knob__val = 1;
 uint16_t clock_input_multiplier = 1;
 Clock clock;
@@ -37,25 +54,25 @@ uint8_t pwm = 0;
 
 void setup()
 {
-  pinMode(clock_out, OUTPUT);
+  pinMode(PIN_clock_out, OUTPUT);
 
-  pinMode(top_button, INPUT);
-  pinMode(left_button, INPUT);
-  pinMode(right_button, INPUT);
+  pinMode(PIN_top_button, INPUT);
+  pinMode(PIN_left_button, INPUT);
+  pinMode(PIN_right_button, INPUT);
 
-  pinMode(top_out, OUTPUT);
-  pinMode(left_out, OUTPUT);
-  pinMode(right_out, OUTPUT);
+  pinMode(PIN_top_out, OUTPUT);
+  pinMode(PIN_left_out, OUTPUT);
+  pinMode(PIN_right_out, OUTPUT);
 
-  pinMode(mux_select_0, OUTPUT);
-  pinMode(mux_select_1, OUTPUT);
-  pinMode(mux_select_2, OUTPUT);
+  pinMode(PIN_mux_select_0, OUTPUT);
+  pinMode(PIN_mux_select_1, OUTPUT);
+  pinMode(PIN_mux_select_2, OUTPUT);
 
-  pinMode(alt, INPUT);
+  pinMode(PIN_alt, INPUT);
 
-  pinMode(led_latch, OUTPUT);
-  pinMode(led_data, OUTPUT);
-  pinMode(led_clock, OUTPUT);
+  pinMode(PIN_led_latch, OUTPUT);
+  pinMode(PIN_led_data, OUTPUT);
+  pinMode(PIN_led_clock, OUTPUT);
   for(int i=0; i<RESOLUTION; i++){
     weight_ram[i] = random(B00111111);
   }
@@ -63,27 +80,23 @@ void setup()
 
 void loop() {
   // state updates
-  topPressed |= digitalRead(top_button);
-  leftPressed |= digitalRead(left_button);
-  rightPressed |= digitalRead(right_button);
+  topPressed |= digitalRead(PIN_top_button);
+  leftPressed |= digitalRead(PIN_left_button);
+  rightPressed |= digitalRead(PIN_right_button);
 
-  record_button_value.set( getTrigerMux(record_button) > LOGIC_HIGH );
+  record_button_value.set( getTrigerMux(MUX_record_button) > LOGIC_HIGH );
   if(record_button_value.isRising()){
     isRecording = !isRecording;
   }
 
-
-
-
-
   // local vars
-  uint16_t clock_in_value = getTrigerMux(clock_div_cv);
-  uint16_t tempo_value = getTrigerMux(tempo);
-  uint16_t clock_div_knob__val = getTrigerMux(clock_div_knob);
-  uint8_t rollup = 3 - (getTrigerMux(roll_rate_knob) * 3 / 1024);
+  uint16_t clock_in_value = getTrigerMux(MUX_clock_div_cv);
+  uint16_t tempo_value = getTrigerMux(MUX_tempo);
+  uint16_t clock_div_knob__val = getTrigerMux(MUX_clock_div_knob);
+  uint8_t rollup = 3 - (getTrigerMux(MUX_roll_rate_knob) * 3 / 1024);
   uint32_t time = millis();
   const bool BUTTONS[3] = {topPressed, leftPressed, rightPressed};
-  bool isAltPressed = digitalRead(alt);
+  bool isAltPressed = digitalRead(PIN_alt);
 
   if(isAltPressed && (clock_div_knob__val != prev_clock_div_knob__val)) {
     clock_input_multiplier = clock_div_knob__val;
@@ -134,10 +147,10 @@ void loop() {
   }
 
   // cv outputs
-  digitalWrite(left_out, (left_until > time));
-  digitalWrite(top_out, (top_until > time));
-  digitalWrite(right_out, (right_until > time));
-  digitalWrite(clock_out , (clock_until > time) );
+  digitalWrite(PIN_left_out, (left_until > time));
+  digitalWrite(PIN_top_out, (top_until > time));
+  digitalWrite(PIN_right_out, (right_until > time));
+  digitalWrite(PIN_clock_out , (clock_until > time) );
 
   // visualization
   int tracker[4] = {128,16,32,64};
@@ -178,9 +191,5 @@ void loop() {
     
   lights(grw, oranges);
 
-
   pwm = (pwm+1) % 80;
-  
 }
-
-

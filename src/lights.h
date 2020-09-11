@@ -22,8 +22,8 @@ void lights(uint8_t grw, uint8_t orange)
   //  const byte grw = green + red + white;
   //  const byte orange = B11111111;
 
-  digitalWrite(led_latch, LOW);
-  shiftOut(led_data, led_clock, LSBFIRST, grw);
-  shiftOut(led_data, led_clock, LSBFIRST, orange);
-  digitalWrite(led_latch, HIGH);
+  digitalWrite(PIN_led_latch, LOW);
+  shiftOut(PIN_led_data, PIN_led_clock, LSBFIRST, grw);
+  shiftOut(PIN_led_data, PIN_led_clock, LSBFIRST, orange);
+  digitalWrite(PIN_led_latch, HIGH);
 }
