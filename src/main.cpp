@@ -175,8 +175,8 @@ void loop() {
   int tracker[4] = {128,16,32,64};
   int brightness[4] = {
     0,
-    (pwm < 10),
-    (pwm < 40),
+    (pwm == 0),
+    (pwm%20 == 0),
     1
   };
   uint8_t viz = 4 * step / RESOLUTION;
@@ -198,10 +198,6 @@ void loop() {
 
   uint8_t oranges = 0
     + tracker[viz] * (viz == 0 ? 1 : brightness[2])
-    // + EEPROM.read(step)
-    // + (B11111111 & step)
-    // + weight_ram[step]
-    // + rollup
     + B1000 * brightness[weight_ram[step] >> 4]
     + B0100 * brightness[weight_ram[(step+1)%RESOLUTION] >> 4]
     + B0010 * brightness[weight_ram[(step+2)%RESOLUTION] >> 4]
@@ -210,5 +206,5 @@ void loop() {
     
   lights(grw, oranges);
 
-  pwm = (pwm+1) % 80;
+  pwm = (pwm+1) % 40;
 }
