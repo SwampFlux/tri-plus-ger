@@ -15,6 +15,7 @@
 
 #include "preferences.h"
 #include "pins.h"
+#include "voltages.h"
 #include "lights.h"
 #include "clock.h"
 #include "DebouncedBoolean.h"
@@ -89,7 +90,7 @@ void loop() {
   weights[1] = digitalRead(PIN_left_button) ? 4 : weights[1];
   weights[2] = digitalRead(PIN_right_button) ? 4 : weights[2];
 
-  record_button.set( getTrigerMux(MUX_record_button) > LOGIC_HIGH );
+  record_button.set( getTrigerMux(MUX_record_button) > TRANSPORT_BUTTON_PRESSED );
   if(record_button.isRising()){
     isRecording = !isRecording;
   }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "preferences.h"
+#include "voltages.h"
 #include "peaks_pattern_predictor.h"
 #include "DebouncedBoolean.h"
 

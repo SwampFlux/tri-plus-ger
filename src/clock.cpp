@@ -17,7 +17,7 @@ bool Clock::isHigh(uint16_t sync_voltage, uint16_t division_knob, uint32_t time)
   const uint32_t PROGRESS = time - time_of_last_sync;
 
   // if sync is rising
-  sync_debounce.set(sync_voltage > LOGIC_HIGH);
+  sync_debounce.set(sync_voltage > TRANSPORT_CV_HIGH);
   if (sync_debounce.isRising()) {
 
     // repredict milliseconds of period
