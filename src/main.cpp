@@ -20,36 +20,41 @@
 #include "DebouncedBoolean.h"
 
 //// global state
-// clock out
-// arcade buttons
 
+// clock out
+Clock clock;
+unsigned long clock_until = 0;
+
+// arcade buttons
+// bool leftPressed, topPressed, rightPressed = false;
+// uint32_t left_until, top_until, right_until = 0;
+
+// clock division knob
+uint16_t prev_clock_div_knob__val = 1;
 // clock input multiplier (alt+clock division)
+uint8_t clock_input_multiplier = 1;
 // beat quantizer (clock division)
-int8_t knobStep (uint16_t v) {
-  return (v * 5 + 512) >> 10;  // >>10 quick divides by 1023
-}
+uint8_t quantize_steps = 1;
+
 // slip/bank (tempo mid-range)
+uint16_t step = 0;
 
 // weight (roll rate)
+uint8_t weight_ram[RESOLUTION] = {0};
+uint8_t weights[3] = {0};
 
 // retrigger
 // tap tempo (retrigger?)
 // play/pause
 // use step offset (roll button)
+uint16_t slip = 0;
 // record
+DebouncedBoolean record_button;
+bool isRecording = false;
+
 // alt
 
-uint16_t prev_clock_div_knob__val = 1;
-uint16_t clock_input_multiplier = 1;
-Clock clock;
-unsigned long clock_until = 0;
-uint16_t step = 0;
-bool leftPressed, topPressed, rightPressed = false;
-uint32_t left_until, top_until, right_until = 0;
-DebouncedBoolean record_button_value;
-bool isRecording = false;
-uint8_t weight_ram[RESOLUTION] = {0};
-uint8_t weights[3] = {0};
+// LEDs
 uint8_t pwm = 0;
 
 void setup()
@@ -80,12 +85,12 @@ void setup()
 
 void loop() {
   // state updates
-  topPressed |= digitalRead(PIN_top_button);
-  leftPressed |= digitalRead(PIN_left_button);
-  rightPressed |= digitalRead(PIN_right_button);
+  weights[0] = digitalRead(PIN_top_button) ? 4 : weights[0];
+  weights[1] = digitalRead(PIN_left_button) ? 4 : weights[1];
+  weights[2] = digitalRead(PIN_right_button) ? 4 : weights[2];
 
-  record_button_value.set( getTrigerMux(MUX_record_button) > LOGIC_HIGH );
-  if(record_button_value.isRising()){
+  record_button.set( getTrigerMux(MUX_record_button) > LOGIC_HIGH );
+  if(record_button.isRising()){
     isRecording = !isRecording;
   }
 
@@ -95,7 +100,6 @@ void loop() {
   uint16_t clock_div_knob__val = getTrigerMux(MUX_clock_div_knob);
   uint8_t rollup = 3 - (getTrigerMux(MUX_roll_rate_knob) * 3 / 1024);
   uint32_t time = millis();
-  const bool BUTTONS[3] = {topPressed, leftPressed, rightPressed};
   bool isAltPressed = digitalRead(PIN_alt);
 
   if(isAltPressed && (clock_div_knob__val != prev_clock_div_knob__val)) {
@@ -110,7 +114,7 @@ void loop() {
     if(isRecording) {
       uint8_t new_weights = 0;
       for(int i=0; i<3; i++) {
-        uint8_t limited_weight = constrain(int(weights[i]) + (BUTTONS[i]?2:0) - 1, 0, 4);
+        uint8_t limited_weight = constrain(int(weights[i]) - 1, 0, 3);
         // [2] [1] [0]
         new_weights += limited_weight << (i*2);
       }
@@ -118,7 +122,7 @@ void loop() {
     }
 
     // reset state for next step
-    topPressed = leftPressed = rightPressed = false;
+    // topPressed = leftPressed = rightPressed = false;
 
     // advance step
     step = (step+1) % RESOLUTION;
@@ -135,17 +139,31 @@ void loop() {
     if((step % PPQN) == 0) {
       clock_until = time + 25;
     }
-    if(weights[0] >= rollup) {
-      top_until = time + 25;
-    }
-    if(weights[1] >= rollup) {
-      left_until = time + 25;
-    }
-    if(weights[2] >= rollup) {
-      right_until = time + 25;
-    }
+    // if(weights[0] >= rollup) {
+    //   top_until = time + 25;
+    // }
+    // if(weights[1] >= rollup) {
+    //   left_until = time + 25;
+    // }
+    // if(weights[2] >= rollup) {
+    //   right_until = time + 25;
+    // }
   }
 
+  // quantize outputs
+  //FIXME knob value should ignore ALT use case
+  quantize_steps = (getTrigerMux(MUX_clock_div_knob) * 5 + 512) >> 10;  // >>10 quick divides by 1023
+
+  for(int chan=0; chan<3; chan++){
+    for(int q=0; q<quantize_steps; q++) {
+      // if(weight_ram[(step + slip + q) % RESOLUTION] )
+      // if a weight was found high, huzzah we have a winner
+      // set output[chan] = true
+      // and
+      break;
+    }
+  }
+  
   // cv outputs
   digitalWrite(PIN_left_out, (left_until > time));
   digitalWrite(PIN_top_out, (top_until > time));
@@ -156,8 +174,8 @@ void loop() {
   int tracker[4] = {128,16,32,64};
   int brightness[4] = {
     0,
-    (pwm % 80) == 0,
-    (pwm % 40) == 0,
+    (pwm < 10),
+    (pwm < 40),
     1
   };
   uint8_t viz = 4 * step / RESOLUTION;
