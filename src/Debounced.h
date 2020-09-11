@@ -7,6 +7,7 @@
  */
 
 #pragma once
+#include <Arduino.h>
 
 class DebouncedBoolean {
   public:
@@ -26,3 +27,22 @@ class DebouncedBoolean {
       state[2] = {false};
     }
 };
+
+class DebouncedInt {
+  public:
+    DebouncedInt() {}
+    uint16_t state[2] = {0};
+
+    void set(uint16_t value) {
+      state[0] = state[1];
+      state[1] = value;
+    }
+
+    uint16_t get() {
+      return state[1];
+    }
+
+    bool changed() {
+      return state[0] != state[1];
+    }
+}
