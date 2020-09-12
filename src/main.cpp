@@ -18,7 +18,7 @@
 #include "voltages.h"
 #include "lights.h"
 #include "clock.h"
-#include "DebouncedBoolean.h"
+#include "Debounce.h"
 
 //// global state
 

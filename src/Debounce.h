@@ -45,4 +45,4 @@ class DebouncedInt {
     bool changed() {
       return state[0] != state[1];
     }
-}
+};

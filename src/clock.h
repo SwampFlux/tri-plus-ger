@@ -2,7 +2,7 @@
 
 #include "voltages.h"
 #include "peaks_pattern_predictor.h"
-#include "DebouncedBoolean.h"
+#include "Debounce.h"
 
 class Clock {
   private:
