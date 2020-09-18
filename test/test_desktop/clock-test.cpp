@@ -1,9 +1,9 @@
 #include <unity.h>
 #include "../src/clock.h"
 
-Clock clock;
+Clock masterclock;
 
-const int example = 1;
+const int example = 2;
 
 void test_equality(void) {
   TEST_ASSERT_EQUAL_INT(2, example);

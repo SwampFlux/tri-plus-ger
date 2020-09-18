@@ -7,7 +7,11 @@
  */
 
 #pragma once
-#include <Arduino.h>
+#ifdef UNIT_TEST
+    #include "ArduinoFake.h"
+#else
+    #include "Arduino.h"
+#endif
 
 class DebouncedBoolean {
   public:
@@ -24,7 +28,8 @@ class DebouncedBoolean {
       return state[0] == false && state[1] == true;
     }
     void reset() {
-      state[2] = {false};
+      state[0] = false;
+      state[1] = false;
     }
 };
 

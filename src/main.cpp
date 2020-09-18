@@ -9,7 +9,11 @@
  * https://github.com/MicroWrave/tri-plus-ger/wiki
  */
 
-#include <Arduino.h>
+#ifdef UNIT_TEST
+    #include "ArduinoFake.h"
+#else
+    #include "Arduino.h"
+#endif
 // #include <EEPROM.h>
 #define DEBUG true
 
@@ -23,7 +27,7 @@
 //// global state
 
 // clock out
-Clock clock;
+Clock masterclock;
 unsigned long clock_until = 0;
 
 // arcade buttons
@@ -109,7 +113,7 @@ void loop() {
   prev_clock_div_knob__val = clock_div_knob__val;
 
   // clock advancement
-  if( clock.isHigh(tempo_value, clock_input_multiplier, time) ) {
+  if( masterclock.isHigh(tempo_value, clock_input_multiplier, time) ) {
 
     // write state for previous step
     if(isRecording) {

@@ -30,7 +30,12 @@
 #ifndef PATTERN_PREDICTOR_H
 #define PATTERN_PREDICTOR_H
 
-#include <Arduino.h>
+#ifdef UNIT_TEST
+    #include "ArduinoFake.h"
+    // #include <stdint.h>
+#else
+    #include "Arduino.h"
+#endif
 // #include <cstdint>
 // #include <stddef.h>
 // #include <stdint.h>
