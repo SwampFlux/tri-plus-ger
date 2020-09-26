@@ -22,8 +22,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install platformio
 
-    - name: Run PlatformIO build on selected platforms
-      run: platformio run
+    - name: Code and memory usage analysis
+      run: platformio check
 
-    # - name: Code static analysis
-    #   run: platformio check
+    - name: Run unit tests on native platform
+      run: platformio test --environment native
+
+    - name: Run PlatformIO build on all platforms
+      run: platformio run
