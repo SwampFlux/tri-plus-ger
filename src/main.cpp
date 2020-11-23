@@ -170,10 +170,10 @@ void loop() {
   }
   
   // cv outputs
-  digitalWrite(PIN_left_out, (left_until > time));
-  digitalWrite(PIN_top_out, (top_until > time));
-  digitalWrite(PIN_right_out, (right_until > time));
-  digitalWrite(PIN_clock_out , (clock_until > time) );
+  // digitalWrite(PIN_left_out, (left_until > time));
+  // digitalWrite(PIN_top_out, (top_until > time));
+  // digitalWrite(PIN_right_out, (right_until > time));
+  // digitalWrite(PIN_clock_out , (clock_until > time) );
 
   // visualization
   int tracker[4] = {128,16,32,64};
