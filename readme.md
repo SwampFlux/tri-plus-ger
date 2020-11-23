@@ -21,7 +21,7 @@ Qu-Bit set out to create a trigger module that embraces playing beats live and r
 
 ### Reversable
 
-Tri+ger attempts to make enhancements to the Tri-ger module without the need to permanently change the front panel, without cutting any traces, and without soldering. Scripts are provided to restore your module to the factory settings at any time—especially useful if you're trying out experimental builds. A removable sticker will be available to change the name on the front panel from Tri-ger to Tri+ger.
+Tri+ger attempts to make enhancements to the Tri-ger module without the need to permanently change the front panel, without cutting any traces, and without soldering. [Scripts are provided to restore your module to the factory settings at any time](https://github.com/MicroWrave/tri-plus-ger/wiki/Flashing-hex-Files#restoring-factory-firmware)—especially useful if you're trying out experimental builds. A removable sticker will be available to change the name on the front panel from Tri-ger to Tri+ger.
 
 ### Clock Input
 
