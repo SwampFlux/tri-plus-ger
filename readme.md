@@ -19,6 +19,10 @@ This is a work in progress. See the issues section for details on what's still i
 
 Qu-Bit set out to create a trigger module that embraces playing beats live and recording beats that have a human touch. I loved the idea of the Tri-ger but once it was under my finger tips, I hated trying to stay in time with the rest of my rack. Tri+ger is alternative firmware that attempts to give me the user experience that I expected before I opened the box. Plus a little extra. But all within the limits of what the Tri-ger is, and respecting/re-thinking its original goals with the hindsight of using one.
 
+### Reversable
+
+Tri+ger attempts to make enhancements to the Tri-ger module without the need to permanently change the front panel, without cutting any traces, and without soldering. Scripts are provided to restore your module to the factory settings at any time—especially useful if you're trying out experimental builds. A removable sticker will be available to change the name on the front panel from Tri-ger to Tri+ger.
+
 ### Clock Input
 
 The most requested feature of Tri-ger was clock input. Tri+ger adds clock detection at 1,2,4,8,16 or 24ppqn. I believe this can be achieved through the tempo input. If that is not possible the clock division cv input will be used.
