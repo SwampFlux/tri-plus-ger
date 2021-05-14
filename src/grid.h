@@ -1,4 +1,8 @@
 #pragma once
+#include "Arduino.h"
+#include <EEPROM.h>
+#include "preferences.h"
+
 /*
  * Step grid
  * reads and writes from EEPROM a single step

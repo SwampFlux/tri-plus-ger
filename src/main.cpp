@@ -32,7 +32,7 @@ unsigned long clock_until = 0;
 
 // arcade buttons
 // bool leftPressed, topPressed, rightPressed = false;
-// uint32_t left_until, top_until, right_until = 0;
+uint32_t left_until, top_until, right_until = 0;
 
 // clock division knob
 uint16_t prev_clock_div_knob__val = 1;
@@ -144,15 +144,15 @@ void loop() {
     if((step % PPQN) == 0) {
       clock_until = time + 25;
     }
-    // if(weights[0] >= rollup) {
-    //   top_until = time + 25;
-    // }
-    // if(weights[1] >= rollup) {
-    //   left_until = time + 25;
-    // }
-    // if(weights[2] >= rollup) {
-    //   right_until = time + 25;
-    // }
+    if(weights[0] >= rollup) {
+      top_until = time + 25;
+    }
+    if(weights[1] >= rollup) {
+      left_until = time + 25;
+    }
+    if(weights[2] >= rollup) {
+      right_until = time + 25;
+    }
   }
 
   // quantize outputs
